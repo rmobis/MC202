@@ -10,22 +10,39 @@
 
 #define MATRIX_MAX_ORDER 20
 
+void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]);
 bool readData(int *matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]);
 void skipLine();
 
 int main() {
-	int i, j;
 	int matrixOrder;
 	int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER];
 
 	if (!readData(&matrixOrder, matrix)) {
-		printf("Dados inv√°lidos\n");
+		printf("Dados inv·lidos\n");
 		return 0;
 	}
 
+	printf("Os pontos de sela da matriz s„o:\n\n");
 
+	findSela(matrixOrder, matrix);
 
 	return 0;
+}
+
+void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
+	int i, j;
+	int lineMin[MATRIX_MAX_ORDER];
+
+	for (i = 0; i < matrixOrder; i++) {
+		lineMin[i] = matrix[i][0];
+
+		for (j = 1; j < matrixOrder; j++) {
+			if (matrix[i][j] < lineMin[i]) {
+				lineMin[i] = matrix[i][j];
+			}
+		}
+	}
 }
 
 bool readData(int *matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
@@ -34,12 +51,16 @@ bool readData(int *matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) 
 	scanf("%d", matrixOrder);
 	skipLine();
 
+	if (*matrixOrder < 1 || *matrixOrder > MATRIX_MAX_ORDER) {
+		return false;
+	}
+
 	for (i = 0; i < *matrixOrder; i++) {
 		for (j = 0; j < *matrixOrder; j++) {
 
-			/* A fun√ß√£o `scanf` retorna o n√∫mero de argumentos corretamente
-			 * preenchidos. Caso nosso √∫nico argumento n√£o tenha sido assim
-			 * preenchido, retornamos false indicando que a leitura n√£o foi
+			/* A funÁ„o `scanf` retorna o n˙mero de argumentos corretamente
+			 * preenchidos. Caso nosso ˙nico argumento n„o tenha sido assim
+			 * preenchido, retornamos false indicando que a leitura n„o foi
 			 * efetuada com sucesso.
 			 */
 			if (scanf("%d", &matrix[i][j]) != 1) {
