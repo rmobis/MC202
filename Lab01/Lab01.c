@@ -32,7 +32,9 @@ int main() {
 
 void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
 	int i, j;
-	int lineMin[MATRIX_MAX_ORDER];
+	int curItem;
+	int lineMin[MATRIX_MAX_ORDER], colMax[MATRIX_MAX_ORDER];
+	bool hasOneSela = false;
 
 	for (i = 0; i < matrixOrder; i++) {
 		lineMin[i] = matrix[i][0];
@@ -42,6 +44,31 @@ void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
 				lineMin[i] = matrix[i][j];
 			}
 		}
+	}
+
+	for (j = 0; j < matrixOrder; j++) {
+		colMax[j] = matrix[0][j];
+
+		for (i = 1; i < matrixOrder; i++) {
+			if (matrix[i][j] > colMax[j]) {
+				colMax[j] = matrix[i][j];
+			}
+		}
+	}
+
+	for (i = 0; i < matrixOrder; i++) {
+		for (j = 0; j < matrixOrder; j++) {
+			curItem = matrix[i][j];
+
+			if (curItem == lineMin[i] && curItem == colMax[j]) {
+				hasOneSela = true;
+				printf("%4d%4d%4d\n", i, j, curItem);
+			}
+		}
+	}
+
+	if (!hasOneSela) {
+		printf("    nenhum\n");
 	}
 }
 
