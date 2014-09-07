@@ -3,6 +3,17 @@
  * Autor: Raphael Mobis Tacla   RA: 157104
  * Disciplina: MC202            Turma: F
  * Data: 03/09/2014
+ *
+ * Lê uma matriz quadrada de ordem N, onde 0 < N < 21, e encontra seus pontos de
+ * sela. A entrada é dada por uma linha inicial, contendo o valor inteiro de N,
+ * seguida de N linhas contendo N inteiros, cada uma representando uma linha da
+ * matriz. Todas as linhas aceitam comentários após os dados. Caso a entrada não
+ * se adeque ao formato especificado ou o valor de N esteja fora dos limites
+ * estabelecidos, a saida é "Dados inválidos." Caso contrário, é "Os pontos de
+ * sela da matriz são:", seguido de uma linha vazia e, para cada ponto de sela,
+ * sua posição na matriz seguida de seu valor, em ordem de linha e coluna, todos
+ * alinhados com 4 caracteres. Caso não haja nenhum ponto de sela, o programa
+ * imprime "    nenhum". A saída sempre termina com um caractere de nova linha.
  */
 
 #include <stdio.h>
@@ -10,7 +21,7 @@
 
 #define MATRIX_MAX_ORDER 20
 
-void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]);
+void findCriticalPoint(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]);
 bool readData(int *matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]);
 void skipLine();
 
@@ -23,19 +34,22 @@ int main() {
 		return 0;
 	}
 
-	printf("Os pontos de sela da matriz são:\n\n");
-
-	findSela(matrixOrder, matrix);
+	findCriticalPoint(matrixOrder, matrix);
 
 	return 0;
 }
 
-void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
-	int i, j;
-	int curItem;
+/**
+ * Encontra os pontos de sela na matriz e imprime suas posições e valores.
+ */
+void findCriticalPoint(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
+	int i, j, curItem;
+	bool hasCriticalPoint = false;
 	int lineMin[MATRIX_MAX_ORDER], colMax[MATRIX_MAX_ORDER];
-	bool hasOneSela = false;
 
+	printf("Os pontos de sela da matriz são:\n\n");
+
+	/* Encontramos o valor mínimo de cada linha */
 	for (i = 0; i < matrixOrder; i++) {
 		lineMin[i] = matrix[i][0];
 
@@ -46,6 +60,7 @@ void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
 		}
 	}
 
+	/* Encontramos o valor máximo de cada coluna */
 	for (j = 0; j < matrixOrder; j++) {
 		colMax[j] = matrix[0][j];
 
@@ -56,22 +71,30 @@ void findSela(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
 		}
 	}
 
+	/* Comparamos cada elemento com os valores mínimo e máximo de sua linha e
+	 * coluna, respectivamente, para verificar se existe um ponto de sela.
+	 */
 	for (i = 0; i < matrixOrder; i++) {
 		for (j = 0; j < matrixOrder; j++) {
 			curItem = matrix[i][j];
 
 			if (curItem == lineMin[i] && curItem == colMax[j]) {
-				hasOneSela = true;
 				printf("%4d%4d%4d\n", i, j, curItem);
+				hasCriticalPoint = true;
 			}
 		}
 	}
 
-	if (!hasOneSela) {
+	if (!hasCriticalPoint) {
 		printf("    nenhum\n");
 	}
 }
 
+/**
+ * Faz a leitura dos dados necessários para o problema e salva nas variáveis
+ * recebidas como argumento. Retorna um booleano indicando se a leitura foi bem
+ * sucedida ou não.
+ */
 bool readData(int *matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) {
 	int i, j;
 
@@ -101,6 +124,9 @@ bool readData(int *matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_ORDER]) 
 	return true;
 }
 
+/**
+ * Pula toda entrada até o final da linha.
+ */
 void skipLine() {
-	scanf("%*[^\n]");
+	scanf("%*[^\n]\n");
 }
