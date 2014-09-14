@@ -10,9 +10,8 @@
 /*-----------------------  Função auxiliar  ----------------------------*/
 
 void InsereTermoAux(Polinomio p, int e, float c) {
-/* Insere o termo '(e,c)' após o nó apontado por 'p'.                  */
 
-/*----- COMPLETAR -----*/
+
 
 } /* InsereTermoAux */
 
@@ -26,22 +25,22 @@ void ImprimePolinomio(Polinomio p) {
 /* não nulos do 'p'. No caso do polinômio identicamente nulo,           */
 /* imprime as palavras "Polinômio nulo".                                */
 
-  if (p==NULL) {
-    printf("Polinômio inválido\n");
-    return;
-  }
+	if (p==NULL) {
+		printf("Polinômio inválido\n");
+		return;
+	}
 
-  if (p->prox==p) {
-    printf("Polinômio nulo\n");
-    return;
-  }
+	if (p->prox==p) {
+		printf("Polinômio nulo\n");
+		return;
+	}
 
-  p = p->prox;
-  while (p->expo!=-1) {
-    printf("(%2d,%5.1f) ",p->expo,p->coef);
-    p = p->prox;
-  }
-  printf("\n");
+	p = p->prox;
+	while (p->expo!=-1) {
+		printf("(%2d,%5.1f) ",p->expo,p->coef);
+		p = p->prox;
+	}
+	printf("\n");
 
 } /* ImprimePolinomio */
 
@@ -49,8 +48,8 @@ void ImprimePolinomio(Polinomio p) {
 Polinomio CriaPolinomioNulo() {
 /* Devolve um novo polinômio identicamente nulo.                        */
 
-  /*----- COMPLETAR -----*/
-  return NULL;    /*-- PROVISÓRIO --*/
+	/*----- COMPLETAR -----*/
+	return NULL;    /*-- PROVISÓRIO --*/
 
 } /* CriaPolinomioNulo */
 
@@ -59,7 +58,7 @@ Polinomio CriaPolinomioNulo() {
 void LiberaPolinomio(Polinomio p) {
 /* Libera toda a memória dinâmica ocupada por um polinômio.             */
 
-  /*----- COMPLETAR -----*/
+	/*----- COMPLETAR -----*/
 
 }
 
@@ -67,8 +66,8 @@ Boolean PolinomioNulo(Polinomio p) {
 /* Verifica se o polinômio 'p' é identicamente nulo.                    */
 /* Verifica se o polinômio 'p' é identicamente nulo.                    */
 
-  /*----- COMPLETAR -----*/
-  return false;    /*-- PROVISÓRIO --*/
+	/*----- COMPLETAR -----*/
+	return false;    /*-- PROVISÓRIO --*/
 
 } /* PolinomioNulo */
 
@@ -78,7 +77,7 @@ void InsereTermo(Polinomio p, int e, float c) {
 /* termos ordenados. Supõe que não existe ainda em 'p' um termo com     */
 /* expoente 'e', e que 'c' não é zero.                                  */
 
-  /*----- COMPLETAR -----*/
+	/*----- COMPLETAR -----*/
 
 } /* InsereTermo */
 
@@ -87,8 +86,8 @@ Polinomio SomaPolinomios(Polinomio a, Polinomio b) {
 /* Devolve a soma dos polinômios 'a' e 'b'. Não altera os polinômios    */
 /* dados. Termos nulos não são inseridos no resultados.                 */
 
-  /*----- COMPLETAR -----*/
-  return NULL;    /*-- PROVISÓRIO --*/
+	/*----- COMPLETAR -----*/
+	return NULL;    /*-- PROVISÓRIO --*/
 
 } /* SomaPolinomios */
 
@@ -97,8 +96,8 @@ Polinomio MultTermo(Polinomio p, int e, float c) {
 /* Devolve o polinômio 'p' multiplicado pelo termo '(e,c)'. Supõe       */
 /* que 'c' não é nulo. Não altera o polinômio dado.                    */
 
-  /*----- COMPLETAR -----*/
-  return NULL;    /*-- PROVISÓRIO --*/
+	/*----- COMPLETAR -----*/
+	return NULL;    /*-- PROVISÓRIO --*/
 
 } /* MultTermo */
 
@@ -107,7 +106,7 @@ Polinomio MultPolinomios(Polinomio a, Polinomio b) {
 /* Devolve o produto dos polinômios 'a' e 'b'. Não altera os polinômios */
 /* dados.                                                               */
 
-  /*----- COMPLETAR -----*/
-  return NULL;    /*-- PROVISÓRIO --*/
+	/*----- COMPLETAR -----*/
+	return NULL;    /*-- PROVISÓRIO --*/
 
 } /* MultPolinomios */
