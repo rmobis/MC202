@@ -60,7 +60,17 @@ void findCriticalPoint(int matrixOrder, int matrix[MATRIX_MAX_ORDER][MATRIX_MAX_
 		}
 	}
 
-	/* Encontramos o valor máximo de cada coluna */
+	/* Encontramos o valor máximo de cada coluna; nós poderiamos ter feito isso
+	 * juntamente com a procura dos valores mínimos de cada linha, no loop de
+	 * cima, trocando os valores das linhas pelos valores das colunas, e isso
+	 * diminuiria o número de operaçãos que teríamos de fazer, mas acabaria
+	 * tornando o código em geral mais lento. Isso ocorreria pois deixariamos
+	 * de acessar a memória de maneira continua e não poderiamos fazer uso do
+	 * cache do processador. Testes com matrizes de ordem 400 mostraram que
+	 * fazendo os loops separados, há um ganho de cerca de 10% de performance.
+	 *
+	 * Mais: http://stackoverflow.com/q/9936132/1661358
+	 */
 	for (j = 0; j < matrixOrder; j++) {
 		colMax[j] = matrix[0][j];
 
