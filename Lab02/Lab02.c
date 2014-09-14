@@ -4,31 +4,17 @@
  * Disciplina: MC202            Turma: F
  * Data: 13/09/2014
  *
- * Lê uma matriz quadrada de ordem N, onde 0 < N < 21, e encontra seus pontos de
- * sela. A entrada é dada por uma linha inicial, contendo o valor inteiro de N,
- * seguida de N linhas contendo N inteiros, cada uma representando uma linha da
- * matriz. Todas as linhas aceitam comentários após os dados. Caso a entrada não
- * se adeque ao formato especificado ou o valor de N esteja fora dos limites
- * estabelecidos, a saida é "Dados inválidos." Caso contrário, é "Os pontos de
- * sela da matriz são:", seguido de uma linha vazia e, para cada ponto de sela,
- * sua posição na matriz seguida de seu valor, em ordem de linha e coluna, todos
- * alinhados com 4 caracteres. Caso não haja nenhum ponto de sela, o programa
- * imprime "    nenhum". A saída sempre termina com um caractere de nova linha.
+ * Este módulo implementa operações sobre polinômios em uma variável. Cada
+ * polinômio é representado por uma lista ligada circular, com nó cabeça. Os nós
+ * da lista representam os termos não nulos do polinômio em ordem crescente dos
+ * seus expoentes. O nó cabeça tem expoente '-1'.
  */
-
-/* Este módulo implementa operações sobre polinômios em uma variável.   */
-/* Cada polinômio é representado por uma lista ligada circular, com nó  */
-/* cabeça. Os nós da lista representam os termos não nulos do polinômio */
-/* em ordem crescente dos seus expoentes. O nó cabeça tem expoente '-1'.*/
 
 #include "polinomios.h"
 #include "balloc.h"
 #include <stdio.h>
 
-/*-----------------------  Função auxiliar  ----------------------------*/
-
-
-/* Insere o termo '(e,c)' após o nó apontado por 'p'. */
+/* Insere o termo '(e, c)' após o nó apontado por 'p'. */
 void InsereTermoAux(Polinomio p, int e, float c) {
 	Polinomio novoTermo = MALLOC(sizeof(Termo));
 
@@ -38,11 +24,6 @@ void InsereTermoAux(Polinomio p, int e, float c) {
 
 	p->prox = novoTermo;
 }
-
-
-
-/*---------------- Implementação das funções da interface --------------*/
-
 
 /* Imprime, em ordem crescente dos expoentes, os termos do não nulos do 'p'. No
  * caso do polinômio identicamente nulo, imprime as palavras "Polinômio nulo".
@@ -128,10 +109,12 @@ Polinomio SomaPolinomios(Polinomio a, Polinomio b) {
 			b = b->prox;
 			c = c->prox;
 		} else {
+			/* Só inserimos termos não nulos */
 			if (a->coef + b->coef != 0) {
 				InsereTermoAux(c, a->expo, a->coef + b->coef);
 				c = c->prox;
 			}
+
 			a = a->prox;
 			b = b->prox;
 		}
@@ -158,7 +141,7 @@ Polinomio SomaPolinomios(Polinomio a, Polinomio b) {
 }
 
 
-/* Devolve o polinômio 'p' multiplicado pelo termo '(e,c)'. Supõe que 'c' não é
+/* Devolve o polinômio 'p' multiplicado pelo termo '(e, c)'. Supõe que 'c' não é
  * nulo. Não altera o polinômio dado.
  */
 Polinomio MultTermo(Polinomio p, int e, float c) {
@@ -172,6 +155,9 @@ Polinomio MultTermo(Polinomio p, int e, float c) {
 		q = q->prox;
 	}
 
+	/* Como 'q' aponta para o último termo da lista, retornamos 'q->prox' pois
+	 * assim o endereço retornado é o do nó cabeça.
+	 */
 	return q->prox;
 }
 
@@ -181,6 +167,9 @@ Polinomio MultPolinomios(Polinomio a, Polinomio b) {
 
 	b = b->prox;
 
+	/* Realiza a soma de cada um dos termos do polinômio 'b' multiplicado pelo
+	 * polinômio 'a'.
+	 */
 	while (b->expo != -1) {
 		d = MultTermo(a, b->expo, b->coef);
 		e = c;
