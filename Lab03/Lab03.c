@@ -11,71 +11,139 @@
 #include "matrizes.h"
 #include "balloc.h"
 
+/* StudlyCase rules */
+#define ApElemento ap_elemento
+#define Elemento elemento
+#define Matriz matriz
+
 void erro(char *msg) {
 	printf("\n*** %s\n", msg);
 	exit(1);
 }
 
+/**
+ * Pula toda entrada at√© o final da linha.
+ */
 void prox_linha(void) {
-	char c;
-	do {
-		scanf("%c", &c);
-	} while ((c != '\n') && (c != EOF));
+	scanf("%*[^\n]\n");
 }
 
-void inicializa(matriz *a, int m, int n) {
-	ap_elemento r, t;
-	int i, j;
-	if ((m < 1) || (m > LCMAX)) { erro("inicializa: n˙mero de linhas inv·lido"); }
-	if ((n < 1) || (n > LCMAX)) { erro("inicializa: n˙mero de colunas inv·lido"); }
-	a->nlins = m;
-	a->ncols = n;
-	a->nelems = 0;
-	a->clin = (ap_elemento *)MALLOC((m+1)*sizeof(ap_elemento));
-	a->ccol = (ap_elemento *)MALLOC((n+1)*sizeof(ap_elemento));
-	/* Cria a cabeÁa das cabeÁas "r". */
-	r = (ap_elemento)MALLOC(sizeof(elemento));
-	if (r == NULL) { erro("inicializa: memÛria esgotada"); }
-	r->lin = m;
-	r->col = n;
-	r->val = 0;
-	r->esq = r; r->dir = r;
-	r->ac = r; r->ab = r;
-	a->clin[m] = r;
-	a->ccol[n] = r;
-	/* Cria cabeÁas das linhas: */
-	for (i = 0; i < m; i++)
-	{ t = (ap_elemento)MALLOC(sizeof(elemento));
-		if (t == NULL) { erro("inicializa: memÛria esgotada"); }
-		t->lin = i;
-		t->col = n;
-		t->val = 0;
-		t->esq = t; t->dir = t;
-		/* Insere logo acima da super-cabeÁa: */
-		t->ac = r->ac; t->ab = r;
-		t->ab->ac = t;
-		t->ac->ab = t;
-		a->clin[i] = t;
+void inicializa(Matriz *ultraCabeca, int numLinhas, int numColunas) {
+	int i;
+	ApElemento superCabeca, tempCabeca;
+
+	if (numLinhas < 1 || numLinhas > LCMAX) {
+		erro("inicializa: n√∫mero de linhas inv√°lido");
+	} else if (numColunas < 1 || numColunas > LCMAX) {
+		erro("inicializa: n√∫mero de colunas inv√°lido");
 	}
-	/* Cria cabeÁas das colunas: */
-	erro("!!!COMPLETAR");
+
+	/* Cria a 'ultra' cabe√ßa. */
+	ultraHead->nelems = 0;
+	ultraHead->nlins  = numLinhas;
+	ultraHead->ncols  = numColunas;
+	ultraHead->clin   = MALLOC((numLinhas + 1) * sizeof(ApElemento));
+	ultraHead->ccol   = MALLOC((numColunas + 1) * sizeof(ApElemento));
+
+
+	/* Cria a 'super' cabe√ßa. */
+	superCabeca = MALLOC(sizeof(Elemento));
+	if (superCabeca == NULL) {
+		erro("inicializa: mem√≥ria esgotada");
+	}
+
+	superCabeca->lin = numLinhas;
+	superCabeca->col = numColunas;
+	superCabeca->val = 0;
+
+	superCabeca->esq              =
+	superCabeca->dir              =
+	superCabeca->ac               =
+	superCabeca->ab               =
+	ultraCabeca->clin[numLinhas]  =
+	ultraCabeca->ccol[numColunas] = superCabeca;
+
+
+	/* Cria cabe√ßas das linhas. */
+	for (i = 0; i < numLinhas; i++) {
+		tempCabeca = MALLOC(sizeof(Elemento));
+		if (tempCabeca == NULL) {
+			erro("inicializa: mem√≥ria esgotada");
+		}
+
+		tempCabeca->lin = i;
+		tempCabeca->col = numColunas;
+		tempCabeca->val = 0;
+
+		tempCabeca->ac = superCabeca->ac;
+		tempCabeca->ab = superCabeca;
+
+		tempCabeca->esq      =
+		tempCabeca->dir      =
+		tempCabeca->ab->ac   =
+		tempCabeca->ac->ab   =
+		ultraCabeca->clin[i] = tempCabeca;
+	}
+
+	/* Cria cabe√ßas das colunas. */
+	for (i = 0; i < numColunas; i++) {
+		tempCabeca = MALLOC(sizeof(Elemento));
+		if (tempCabeca == NULL) {
+			erro("inicializa: mem√≥ria esgotada");
+		}
+
+		tempCabeca->lin = numLinhas;
+		tempCabeca->col = i;
+		tempCabeca->val = 0;
+
+		tempCabeca->esq = superCabeca->esq;
+		tempCabeca->dir = superCabeca;
+
+		tempCabeca->ac       =
+		tempCabeca->ab       =
+		tempCabeca->esq->dir =
+		tempCabeca->dir->esq =
+		ultraCabeca->ccol[i] = tempCabeca;
+	}
 }
 
-void libera(matriz *a) {
-	/* Libera toda a memÛria din‚mica ocupada por uma matriz */
-	erro("!!!COMPLETAR");
+void libera(Matriz *ultraCabeca) {
+	int i;
+	ApElemento tempElemento;
+
+	/* Rodando a lista para a direita, apagamos sempre o elemento da esquerda. */
+	for (i = 0; i < ultraCabeca->nlins; i++) {
+		/* Pulamos at√© que o n√≥ cabe√ßa da linha n√£o seja o da esquerda. */
+		tempElemento = ultraCabeca->clin[i]->dir->dir;
+
+		while (tempElemento->col != ultraCabeca->ncols) {
+			FREE(tempElemento->esq);
+		}
+
+		/* Libera o n√≥ cabe√ßa da linha. */
+		FREE(tempElemento);
+	}
+
+	FREE(ultraCabeca->clin);
+	FREE(ultraCabeca->ccol);
+	FREE(ultraCabeca);
 }
 
-void encontra(matriz *a, int i, int j, ap_elemento *ppl, ap_elemento *ppc) {
-	/* FunÁ„o auxiliar: se o elemento "a[i,j]" existe,
-	devolve seu endereÁo em "*ppl" e "*ppc".  Caso contr·rio,
-	devolve nessas vari·veis os endereÁos dos seus sucessores
+void encontra(matriz *ultraCabeca, int i, int j, ApElemento *apApLinha, ApElemento *apApColuna) {
+	/* Fun√ß√£o auxiliar: se o elemento "a[i,j]" existe,
+	devolve seu endere√ßo em "*ppl" e "*ppc".  Caso contr√°rio,
+	devolve nessas vari√°veis os endere√ßos dos seus sucessores
 	imediatos na linha e coluna (possivelmente as respectivas
-	cabeÁas). */
+	cabe√ßas). */
 
-	ap_elemento pl, pc;
-	if ((i < 0) || (i >= a->nlins)) { erro("encontra: linha inv·lida"); }
-	if ((j < 0) || (j >= a->ncols)) { erro("encontra: coluna inv·lida"); }
+	ApElemento apLinha, apColuna;
+
+	if (i < 0 || i >= ultraCabeca->nlins) {
+		erro("encontra: linha inv√°lida");
+	} else if (j < 0 || j >= ultraCabeca->ncols) {
+		erro("encontra: coluna inv√°lida");
+	}
+
 	/* Procura elemento "pl" na linha "i": */
 	pl = a->clin[i];
 	pl = pl->dir; while (pl->col < j) { pl = pl->dir; }
@@ -85,7 +153,7 @@ void encontra(matriz *a, int i, int j, ap_elemento *ppl, ap_elemento *ppc) {
 	{ /* Procura elemento "pc" na coluna "j": */
 		pc = a->ccol[j];
 		pc = pc->ab; while (pc->lin < i) { pc =  pc->ab; }
-		/* ConsistÍncia: */
+		/* Consist√™ncia: */
 		if (pc == pl) { erro("encontra: apontadores pirados"); }
 	}
 	if ((pl->lin != i) || (pl->col < j)) { erro("encontra: pl inconsistente"); }
@@ -94,7 +162,7 @@ void encontra(matriz *a, int i, int j, ap_elemento *ppl, ap_elemento *ppc) {
 }
 
 float valor(matriz *a, int i, int j) {
-	ap_elemento pl, pc;
+	ApElemento pl, pc;
 	encontra(a, i, j, &pl, &pc);
 	if (pl != pc)
 	{ return 0; }
@@ -102,23 +170,23 @@ float valor(matriz *a, int i, int j) {
 	{ return pl->val; }
 }
 
-void remove_elem(matriz *a, ap_elemento r) {
-	/* FunÁ„o auxiliar: elimina um elemento "r" da matriz "a". */
+void remove_elem(matriz *a, ApElemento r) {
+	/* Fun√ß√£o auxiliar: elimina um elemento "r" da matriz "a". */
 	erro("!!!COMPLETAR");
 	FREE(r);
 	a->nelems--;
 }
 
-void insere_elem(matriz *a, int i, int j, float v, ap_elemento pl, ap_elemento pc) {
-	/* FunÁ„o auxiliar: insere um elemento de valor "v" e Ìndices "[i,j]",
-	dadas as posiÁıes dos sucessores do elemento "a[i,j]" na linha e
-	coluna, respectivamente (possivelmente cabeÁas).  Supıe que o
-	elemento n„o est· na matriz, e que "v != 0". */
-	ap_elemento r;
+void insere_elem(matriz *a, int i, int j, float v, ApElemento pl, ApElemento pc) {
+	/* Fun√ß√£o auxiliar: insere um elemento de valor "v" e √≠ndices "[i,j]",
+	dadas as posi√ß√µes dos sucessores do elemento "a[i,j]" na linha e
+	coluna, respectivamente (possivelmente cabe√ßas).  Sup√µe que o
+	elemento n√£o est√° na matriz, e que "v != 0". */
+	ApElemento r;
 	if (v == 0) { erro("insere: elemento nulo"); }
 	if (pl->col < j) { erro("insere: pl inconsistente"); }
 	if (pc->lin < i) { erro("insere: pc inconsistente"); }
-	r = (ap_elemento)MALLOC(sizeof(elemento));
+	r = (ApElemento)MALLOC(sizeof(elemento));
 	r->lin = i;
 	r->col = j;
 	r->val = v;
@@ -129,13 +197,13 @@ void insere_elem(matriz *a, int i, int j, float v, ap_elemento pl, ap_elemento p
 
 void atribui(matriz *a, int i, int j, float v) {
 
-	ap_elemento pl, pc;
+	ApElemento pl, pc;
 	encontra(a, i, j, &pl, &pc);
 	if (pl != pc) {
-	/* Elemento n„o existe; se "v" n„o È nulo, precisa encaixar: */
+	/* Elemento n√£o existe; se "v" n√£o √© nulo, precisa encaixar: */
 		if (v != 0.0) { insere_elem(a, i, j, v, pl, pc); }
 	} else {
-	/* Elemento existe; se "v" È nulo, precisa remover, sen„o alterar: */
+	/* Elemento existe; se "v" √© nulo, precisa remover, sen√£o alterar: */
 		if (v != 0.0) { pl->val = v; } else { remove_elem(a, pl); }
 	}
 }
@@ -143,7 +211,7 @@ void atribui(matriz *a, int i, int j, float v) {
 void le_matriz(matriz *a) {
 	int m, n, d;
 	int i, j; float v;
-	int ip, jp; /* Õndices do elemento anterior. */
+	int ip, jp; /* √çndices do elemento anterior. */
 	int k;
 
 	scanf("%d %d %d", &m, &n, &d); prox_linha();
@@ -175,7 +243,7 @@ void transpoe(matriz *a, matriz *t) {
 
 void soma(matriz *a, matriz *b, matriz *s) {
 	int i, j; float v;
-	/* Verifica se possuem mesmas dimensıes: */
+	/* Verifica se possuem mesmas dimens√µes: */
 	if ((a->nlins != b->nlins) || (a->ncols != b->ncols))
 		erro("soma: matrizes com tamanhos diferentes");
 	/* Inicializa matriz "s" com mesmas dimensoes de "a" e "b": */
