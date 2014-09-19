@@ -27,11 +27,11 @@ void prox_linha(void) {
 	scanf("%*[^\n]\n");
 }
 
-/* Inicializa 'ultraCabeca' com uma matriz esparsa de 'numLinhas' linhas e
+/* Inicializa 'A' com uma matriz esparsa de 'numLinhas' linhas e
  * 'numColunas' colunas, já alocando os nós cabeça e os vetores que apontam para
  * estes.
  */
-void inicializa(Matriz *ultraCabeca, int numLinhas, int numColunas) {
+void inicializa(Matriz *A, int numLinhas, int numColunas) {
 	int i;
 	ApElemento superCabeca, tempCabeca;
 
@@ -59,12 +59,12 @@ void inicializa(Matriz *ultraCabeca, int numLinhas, int numColunas) {
 	superCabeca->col = numColunas;
 	superCabeca->val = 0;
 
-	superCabeca->esq              =
-	superCabeca->dir              =
-	superCabeca->ac               =
-	superCabeca->ab               =
-	ultraCabeca->clin[numLinhas]  =
-	ultraCabeca->ccol[numColunas] = superCabeca;
+	superCabeca->esq    =
+	superCabeca->dir    =
+	superCabeca->ac     =
+	superCabeca->ab     =
+	A->clin[numLinhas]  =
+	A->ccol[numColunas] = superCabeca;
 
 
 	/* Cria cabeças das linhas. */
@@ -81,11 +81,11 @@ void inicializa(Matriz *ultraCabeca, int numLinhas, int numColunas) {
 		tempCabeca->ac = superCabeca->ac;
 		tempCabeca->ab = superCabeca;
 
-		tempCabeca->esq      =
-		tempCabeca->dir      =
-		tempCabeca->ab->ac   =
-		tempCabeca->ac->ab   =
-		ultraCabeca->clin[i] = tempCabeca;
+		tempCabeca->esq    =
+		tempCabeca->dir    =
+		tempCabeca->ab->ac =
+		tempCabeca->ac->ab =
+		A->clin[i]         = tempCabeca;
 	}
 
 	/* Cria cabeças das colunas. */
@@ -106,21 +106,21 @@ void inicializa(Matriz *ultraCabeca, int numLinhas, int numColunas) {
 		tempCabeca->ab       =
 		tempCabeca->esq->dir =
 		tempCabeca->dir->esq =
-		ultraCabeca->ccol[i] = tempCabeca;
+		A->ccol[i]           = tempCabeca;
 	}
 }
 
 /* Libera todo a memória alocada para a matriz esparsa. */
-void libera(Matriz *ultraCabeca) {
+void libera(Matriz *A) {
 	ApElemento tempElemento;
 	int i;
 
 	/* Rodando a lista para a direita, apagamos sempre o elemento da esquerda. */
-	for (i = 0; i < ultraCabeca->nlins; i++) {
+	for (i = 0; i < A->nlins; i++) {
 		/* Pulamos até que o nó cabeça da linha não seja o da esquerda. */
-		tempElemento = ultraCabeca->clin[i]->dir->dir;
+		tempElemento = A->clin[i]->dir->dir;
 
-		while (tempElemento->col != ultraCabeca->ncols) {
+		while (tempElemento->col != A->ncols) {
 			FREE(tempElemento->esq);
 		}
 
@@ -128,26 +128,26 @@ void libera(Matriz *ultraCabeca) {
 		FREE(tempElemento);
 	}
 
-	FREE(ultraCabeca->clin);
-	FREE(ultraCabeca->ccol);
-	FREE(ultraCabeca);
+	FREE(A->clin);
+	FREE(A->ccol);
+	FREE(A);
 }
 
 /* Procura o elemento de coordenadas 'i','j' na matriz. Caso ele existe, retorna
  * em 'apApLinha' e 'apApColuna' o endereço do elemento. Caso contrário, retorna
  * o endereço de seus predecessores da linha e da coluna, respectivamente.
  */
-void encontra(Matriz *ultraCabeca, int i, int j, ApElemento *apApLinha, ApElemento *apApColuna) {
+void encontra(Matriz *A, int i, int j, ApElemento *apApLinha, ApElemento *apApColuna) {
 	ApElemento apLinha, apColuna;
 
-	if (i < 0 || i >= ultraCabeca->nlins) {
+	if (i < 0 || i >= A->nlins) {
 		erro("encontra: linha inválida");
-	} else if (j < 0 || j >= ultraCabeca->ncols) {
+	} else if (j < 0 || j >= A->ncols) {
 		erro("encontra: coluna inválida");
 	}
 
 	/* Percorre a linha 'i' procurando pelo elemento, ou seu predecessor */
-	apLinha = ultraCabeca->clin[i];
+	apLinha = A->clin[i];
 	apLinha = apLinha->dir;
 
 	while (apLinha->col < j) {
@@ -158,7 +158,7 @@ void encontra(Matriz *ultraCabeca, int i, int j, ApElemento *apApLinha, ApElemen
 	 * outro predecessor.
 	 */
 	if (apLinha->col != j) {
-		apColuna = ultraCabeca->ccol[j];
+		apColuna = A->ccol[j];
 		apColuna = apColuna->ab;
 
 		while (apColuna->lin < i) {
@@ -173,10 +173,10 @@ void encontra(Matriz *ultraCabeca, int i, int j, ApElemento *apApLinha, ApElemen
 }
 
 /* Retorna o valor de um elemento 'i','j' na matriz. */
-float valor(Matriz *ultraCabeca, int i, int j) {
+float valor(Matriz *A, int i, int j) {
 	ApElemento apLinha, apColuna;
 
-	encontra(ultraCabeca, i, j, &apLinha, &apColuna);
+	encontra(A, i, j, &apLinha, &apColuna);
 
 	/* Se o elemento não foi encontrado, seu valor é 0. */
 	if (apLinha != apColuna) {
@@ -187,20 +187,20 @@ float valor(Matriz *ultraCabeca, int i, int j) {
 }
 
 /* Remove um elemento 'elRemovido' da matriz e libera a memória usada por ele. */
-void remove_elem(Matriz *ultraCabeca, ApElemento elRemovido) {
+void remove_elem(Matriz *A, ApElemento elRemovido) {
 	elRemovido->ac->ab   = elRemovido->ab;
 	elRemovido->ab->ac   = elRemovido->ac;
 	elRemovido->dir->esq = elRemovido->esq;
 	elRemovido->esq->dir = elRemovido->dir;
 
 	FREE(elRemovido);
-	ultraCabeca->nelems--;
+	A->nelems--;
 }
 
 /* Insere um elemento de valor 'v' e índices 'i','j', dados os elementos
  * sucessores. Assume 'v' != 0.
  */
-void insere_elem(Matriz *ultraCabeca, int i, int j, float v, ApElemento apLinha, ApElemento apColuna) {
+void insere_elem(Matriz *A, int i, int j, float v, ApElemento apLinha, ApElemento apColuna) {
 	ApElemento novoElemento;
 
 	if (apLinha->col < j) {
@@ -223,28 +223,40 @@ void insere_elem(Matriz *ultraCabeca, int i, int j, float v, ApElemento apLinha,
 	apLinha->esq = novoElemento;
 	apColuna->ac = novoElemento;
 
-	ultraCabeca->nelems++;
+	A->nelems++;
 }
 
-void atribui(Matriz *ultraCabeca, int i, int j, float v) {
+void atribui(Matriz *A, int i, int j, float v) {
 	ApElemento apLinha, apColuna;
-	encontra(ultraCabeca, i, j, &apLinha, &apColuna);
+	encontra(A, i, j, &apLinha, &apColuna);
 
-	/* Elemento não existe; se "v" não é nulo, precisa encaixar: */
+	/* Se o elemento não existe, o inserimos. */
 	if (apLinha != apColuna) {
 		if (v != 0) {
-			insere_elem(ultraCabeca, i, j, v, apLinha, apColuna);
+			insere_elem(A, i, j, v, apLinha, apColuna);
 		}
-	/* Elemento existe; se "v" é nulo, precisa remover, senão alterar: */
+
+	/* Se o elemento já existe, alteramos seu valor; caso este seja 0, o
+	 * removemos
+	 */
 	} else {
 		if (v != 0) {
 			apLinha->val = v;
 		} else {
-			remove_elem(ultraCabeca, apLinha);
+			remove_elem(A, apLinha);
 		}
 	}
 }
 
+/* Lê uma matriz e coloca-a em "a". A próxima linha  do arquivo de entrada deve
+ * conter três inteiros "nlins", "ncols", "nelems" (número de linhas, de
+ * colunas, e de elementos não nulos da matriz). Em seguida devem vir "nelems"
+ * linhas do arquivo, cada qual contendo os índices "lin" e "col" e o valor
+ * "val" de um elemento não nulo da matriz.
+ *
+ * NOTA: Essa função está tão zoada que eu achei melhor nem tocar nela, vai que
+ * eu quebro ela...
+ */
 void le_matriz(matriz *a) {
 	int m, n, d;
 	int i, j; float v;
@@ -260,6 +272,11 @@ void le_matriz(matriz *a) {
 	}
 }
 
+/* Imprime os elementos da matriz "a", no formato esperado por "le_matriz".
+ *
+ * NOTA: Essa função está tão zoada que eu achei melhor nem tocar nela, vai que
+ * eu quebro ela...
+ */
 void imprime_matriz(matriz *a) {
 	int i;
 	printf("%d %d %d\n", a->nlins, a->ncols, a->nelems);
@@ -272,25 +289,78 @@ void imprime_matriz(matriz *a) {
 	}
 }
 
-void transpoe(matriz *a, matriz *t) {
+void transpoe(Matriz *A, Matriz *T) {
 	int i;
-	inicializa(t, a->ncols, a->nlins);
-	erro("!!!COMPLETAR");
+	ApElemento apLinha;
+
+	inicializa(T, A->ncols, A->nlins);
+
+	for (i = 0; i < A->nlins; i++) {
+		apLinha = A->clin[i]->dir;
+
+		while (apLinha->col != A->ncols) {
+			insere_elem(T, apLinha->col, i, apLinha->val, T->clin[apLinha->col], T->ccol[i]);
+			apLinha = apLinha->dir;
+		}
+	}
 }
 
-void soma(matriz *a, matriz *b, matriz *s) {
-	int i, j; float v;
-	/* Verifica se possuem mesmas dimensões: */
-	if ((a->nlins != b->nlins) || (a->ncols != b->ncols))
+void soma(Matriz *A, Matriz *B, Matriz *S) {
+	ApElemento apLinhaA, apLinhaB;
+	int i;
+
+	if (A->nlins != B->nlins || A->ncols != B->ncols) {
 		erro("soma: matrizes com tamanhos diferentes");
-	/* Inicializa matriz "s" com mesmas dimensoes de "a" e "b": */
-	inicializa(s, a->nlins, a->ncols);
-	erro("!!!COMPLETAR");
+	}
+
+	inicializa(S, A->nlins, A->ncols);
+
+	for (i = 0; i < A->nlins; i++) {
+		apLinhaA = A->clin[i]->dir;
+		apLinhaB = B->clin[i]->dir;
+
+		while (apLinhaA->col != A->ncols || apLinhaB->col != B->ncols) {
+			if (apLinhaA->col < apLinhaB->col) {
+				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val, S->clin[i], S->clin[j]);
+				apLinhaA = apLinhaA->dir;
+			} else if (apLinhaA->col > apLinhaB->col) {
+				insere_elem(S, apLinhaB->lin, apLinhaB->col, apLinhaB->val, S->clin[i], S->clin[j]);
+				apLinhaB = apLinhaB->dir;
+			} else {
+				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val + apLinhaB->val, S->clin[i], S->clin[j]);
+				apLinhaA = apLinhaA->dir;
+				apLinhaB = apLinhaB->dir;
+			}
+		}
+	}
 }
 
-void multiplica(matriz *a, matriz *b, matriz *p) {
+void multiplica(Matriz *A, Matriz *B, Matriz *P) {
 	int i, j;
-	if ((a->ncols) != (b->nlins)) { erro("multiplica: tamanhos invalidos"); }
-	inicializa(p, a->nlins, b->ncols);
-	erro("!!!COMPLETAR");
+
+	if (A->ncols != B->nlins) {
+		erro("multiplica: tamanhos invalidos");
+	}
+
+	inicializa(P, A->nlins, B->ncols);
+
+	for (i = 0; i < A->nlins; i++) {
+		apLinhaA = A->clin[i]->dir;
+
+		for (j = 0; j < B->ncols; j++)
+			apColunaB = B->ccol[j]->ab;
+
+			while (apLinhaA->col != A->ncols && apLinhaB->col != B->ncols) {
+				if (apLinhaA->col < apColunaB->lin) {
+					apLinhaA = apLinhaA->dir;
+				} else if (apLinhaA->col > apColunaB->lin) {
+					apLinhaB = apLinhaB->ab;
+				} else {
+					insere_elem(P, apLinhaA->lin, apLinhaA->col, apLinhaA->val * apColunaB->val, P->clin[i], P->clin[j]);
+					apLinhaA = apLinhaA->dir;
+					apLinhaB = apLinhaB->ab;
+				}
+			}
+		}
+	}
 }
