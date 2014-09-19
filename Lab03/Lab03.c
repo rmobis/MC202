@@ -24,7 +24,10 @@ void erro(char *msg) {
 
 /* Pula toda entrada até o final da linha. */
 void prox_linha(void) {
-	scanf("%*[^\n]\n");
+	char c;
+	do {
+		scanf("%c", &c);
+	} while (c != '\n' && c != EOF);
 }
 
 /* Inicializa 'A' com uma matriz esparsa de 'numLinhas' linhas e
@@ -42,11 +45,11 @@ void inicializa(Matriz *A, int numLinhas, int numColunas) {
 	}
 
 	/* Cria a 'ultra' cabeça. */
-	ultraHead->nelems = 0;
-	ultraHead->nlins  = numLinhas;
-	ultraHead->ncols  = numColunas;
-	ultraHead->clin   = MALLOC((numLinhas + 1) * sizeof(ApElemento));
-	ultraHead->ccol   = MALLOC((numColunas + 1) * sizeof(ApElemento));
+	A->nelems = 0;
+	A->nlins  = numLinhas;
+	A->ncols  = numColunas;
+	A->clin   = MALLOC((numLinhas + 1) * sizeof(ApElemento));
+	A->ccol   = MALLOC((numColunas + 1) * sizeof(ApElemento));
 
 
 	/* Cria a 'super' cabeça. */
@@ -112,20 +115,22 @@ void inicializa(Matriz *A, int numLinhas, int numColunas) {
 
 /* Libera todo a memória alocada para a matriz esparsa. */
 void libera(Matriz *A) {
-	ApElemento tempElemento;
+	ApElemento p, q;
 	int i;
 
 	/* Rodando a lista para a direita, apagamos sempre o elemento da esquerda. */
-	for (i = 0; i < A->nlins; i++) {
+	for (i = 0; i <= A->nlins; i++) {
 		/* Pulamos até que o nó cabeça da linha não seja o da esquerda. */
-		tempElemento = A->clin[i]->dir->dir;
+		p = A->clin[i]->dir;
 
-		while (tempElemento->col != A->ncols) {
-			FREE(tempElemento->esq);
+		while (p->col != A->ncols) {
+			q = p->dir;
+			FREE(p);
+			p = q;
 		}
 
 		/* Libera o nó cabeça da linha. */
-		FREE(tempElemento);
+		FREE(p);
 	}
 
 	FREE(A->clin);
@@ -260,12 +265,12 @@ void atribui(Matriz *A, int i, int j, float v) {
 void le_matriz(matriz *a) {
 	int m, n, d;
 	int i, j; float v;
-	int ip, jp; /* Índices do elemento anterior. */
+	/*int ip, jp;  Índices do elemento anterior. */
 	int k;
 
 	scanf("%d %d %d", &m, &n, &d); prox_linha();
 	inicializa(a, m, n);
-	ip = -1; jp = n-1;
+	/*ip = -1; jp = n-1;*/
 	for (k = 0; k < d; k++)
 	{ scanf("%d %d %f", &i, &j, &v); prox_linha();
 		if (v != 0) { insere_elem(a, i, j, v, a->clin[i], a->ccol[j]); }
@@ -321,13 +326,13 @@ void soma(Matriz *A, Matriz *B, Matriz *S) {
 
 		while (apLinhaA->col != A->ncols || apLinhaB->col != B->ncols) {
 			if (apLinhaA->col < apLinhaB->col) {
-				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val, S->clin[i], S->clin[j]);
+				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val, S->clin[i], S->clin[apLinhaA->col]);
 				apLinhaA = apLinhaA->dir;
 			} else if (apLinhaA->col > apLinhaB->col) {
-				insere_elem(S, apLinhaB->lin, apLinhaB->col, apLinhaB->val, S->clin[i], S->clin[j]);
+				insere_elem(S, apLinhaB->lin, apLinhaB->col, apLinhaB->val, S->clin[i], S->clin[apLinhaB->col]);
 				apLinhaB = apLinhaB->dir;
 			} else {
-				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val + apLinhaB->val, S->clin[i], S->clin[j]);
+				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val + apLinhaB->val, S->clin[i], S->clin[apLinhaA->col]);
 				apLinhaA = apLinhaA->dir;
 				apLinhaB = apLinhaB->dir;
 			}
@@ -336,6 +341,7 @@ void soma(Matriz *A, Matriz *B, Matriz *S) {
 }
 
 void multiplica(Matriz *A, Matriz *B, Matriz *P) {
+	ApElemento apLinhaA, apColunaB;
 	int i, j;
 
 	if (A->ncols != B->nlins) {
@@ -347,18 +353,18 @@ void multiplica(Matriz *A, Matriz *B, Matriz *P) {
 	for (i = 0; i < A->nlins; i++) {
 		apLinhaA = A->clin[i]->dir;
 
-		for (j = 0; j < B->ncols; j++)
+		for (j = 0; j < B->ncols; j++) {
 			apColunaB = B->ccol[j]->ab;
 
-			while (apLinhaA->col != A->ncols && apLinhaB->col != B->ncols) {
+			while (apLinhaA->col != A->ncols && apColunaB->col != B->ncols) {
 				if (apLinhaA->col < apColunaB->lin) {
 					apLinhaA = apLinhaA->dir;
 				} else if (apLinhaA->col > apColunaB->lin) {
-					apLinhaB = apLinhaB->ab;
+					apColunaB = apColunaB->ab;
 				} else {
 					insere_elem(P, apLinhaA->lin, apLinhaA->col, apLinhaA->val * apColunaB->val, P->clin[i], P->clin[j]);
 					apLinhaA = apLinhaA->dir;
-					apLinhaB = apLinhaB->ab;
+					apColunaB = apColunaB->ab;
 				}
 			}
 		}
