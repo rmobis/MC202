@@ -16,18 +16,21 @@
 #define Elemento elemento
 #define Matriz matriz
 
+/* Imprime uma mensagem de erro e encerra a execução do programa, retornando 1. */
 void erro(char *msg) {
 	printf("\n*** %s\n", msg);
 	exit(1);
 }
 
-/**
- * Pula toda entrada até o final da linha.
- */
+/* Pula toda entrada até o final da linha. */
 void prox_linha(void) {
 	scanf("%*[^\n]\n");
 }
 
+/* Inicializa 'ultraCabeca' com uma matriz esparsa de 'numLinhas' linhas e
+ * 'numColunas' colunas, já alocando os nós cabeça e os vetores que apontam para
+ * estes.
+ */
 void inicializa(Matriz *ultraCabeca, int numLinhas, int numColunas) {
 	int i;
 	ApElemento superCabeca, tempCabeca;
@@ -107,9 +110,10 @@ void inicializa(Matriz *ultraCabeca, int numLinhas, int numColunas) {
 	}
 }
 
+/* Libera todo a memória alocada para a matriz esparsa. */
 void libera(Matriz *ultraCabeca) {
-	int i;
 	ApElemento tempElemento;
+	int i;
 
 	/* Rodando a lista para a direita, apagamos sempre o elemento da esquerda. */
 	for (i = 0; i < ultraCabeca->nlins; i++) {
@@ -129,13 +133,11 @@ void libera(Matriz *ultraCabeca) {
 	FREE(ultraCabeca);
 }
 
-void encontra(matriz *ultraCabeca, int i, int j, ApElemento *apApLinha, ApElemento *apApColuna) {
-	/* Função auxiliar: se o elemento "a[i,j]" existe,
-	devolve seu endereço em "*ppl" e "*ppc".  Caso contrário,
-	devolve nessas variáveis os endereços dos seus sucessores
-	imediatos na linha e coluna (possivelmente as respectivas
-	cabeças). */
-
+/* Procura o elemento de coordenadas 'i','j' na matriz. Caso ele existe, retorna
+ * em 'apApLinha' e 'apApColuna' o endereço do elemento. Caso contrário, retorna
+ * o endereço de seus predecessores da linha e da coluna, respectivamente.
+ */
+void encontra(Matriz *ultraCabeca, int i, int j, ApElemento *apApLinha, ApElemento *apApColuna) {
 	ApElemento apLinha, apColuna;
 
 	if (i < 0 || i >= ultraCabeca->nlins) {
@@ -144,67 +146,102 @@ void encontra(matriz *ultraCabeca, int i, int j, ApElemento *apApLinha, ApElemen
 		erro("encontra: coluna inválida");
 	}
 
-	/* Procura elemento "pl" na linha "i": */
-	pl = a->clin[i];
-	pl = pl->dir; while (pl->col < j) { pl = pl->dir; }
-	if (pl->col == j)
-	{ pc = pl; }
-	else
-	{ /* Procura elemento "pc" na coluna "j": */
-		pc = a->ccol[j];
-		pc = pc->ab; while (pc->lin < i) { pc =  pc->ab; }
-		/* Consistência: */
-		if (pc == pl) { erro("encontra: apontadores pirados"); }
+	/* Percorre a linha 'i' procurando pelo elemento, ou seu predecessor */
+	apLinha = ultraCabeca->clin[i];
+	apLinha = apLinha->dir;
+
+	while (apLinha->col < j) {
+		apLinha = apLinha->dir;
 	}
-	if ((pl->lin != i) || (pl->col < j)) { erro("encontra: pl inconsistente"); }
-	if ((pc->col != j) || (pc->lin < i)) { erro("encontra: pc inconsistente"); }
-	(*ppl) = pl; (*ppc) = pc;
-}
 
-float valor(matriz *a, int i, int j) {
-	ApElemento pl, pc;
-	encontra(a, i, j, &pl, &pc);
-	if (pl != pc)
-	{ return 0; }
-	else
-	{ return pl->val; }
-}
+	/* Se não encontramos o elemento, percorremos a coluna 'j' procurando seu
+	 * outro predecessor.
+	 */
+	if (apLinha->col != j) {
+		apColuna = ultraCabeca->ccol[j];
+		apColuna = apColuna->ab;
 
-void remove_elem(matriz *a, ApElemento r) {
-	/* Função auxiliar: elimina um elemento "r" da matriz "a". */
-	erro("!!!COMPLETAR");
-	FREE(r);
-	a->nelems--;
-}
-
-void insere_elem(matriz *a, int i, int j, float v, ApElemento pl, ApElemento pc) {
-	/* Função auxiliar: insere um elemento de valor "v" e índices "[i,j]",
-	dadas as posições dos sucessores do elemento "a[i,j]" na linha e
-	coluna, respectivamente (possivelmente cabeças).  Supõe que o
-	elemento não está na matriz, e que "v != 0". */
-	ApElemento r;
-	if (v == 0) { erro("insere: elemento nulo"); }
-	if (pl->col < j) { erro("insere: pl inconsistente"); }
-	if (pc->lin < i) { erro("insere: pc inconsistente"); }
-	r = (ApElemento)MALLOC(sizeof(elemento));
-	r->lin = i;
-	r->col = j;
-	r->val = v;
-	/* Insere o elemento nas listas da linha e da coluna: */
-	erro("!!!COMPLETAR");
-	a->nelems++;
-}
-
-void atribui(matriz *a, int i, int j, float v) {
-
-	ApElemento pl, pc;
-	encontra(a, i, j, &pl, &pc);
-	if (pl != pc) {
-	/* Elemento não existe; se "v" não é nulo, precisa encaixar: */
-		if (v != 0.0) { insere_elem(a, i, j, v, pl, pc); }
+		while (apColuna->lin < i) {
+			apColuna = apColuna->ab;
+		}
 	} else {
+		apColuna = apLinha;
+	}
+
+	(*apApLinha) = apLinha;
+	(*apApColuna) = apColuna;
+}
+
+/* Retorna o valor de um elemento 'i','j' na matriz. */
+float valor(Matriz *ultraCabeca, int i, int j) {
+	ApElemento apLinha, apColuna;
+
+	encontra(ultraCabeca, i, j, &apLinha, &apColuna);
+
+	/* Se o elemento não foi encontrado, seu valor é 0. */
+	if (apLinha != apColuna) {
+		return 0;
+	}
+
+	return apLinha->val;
+}
+
+/* Remove um elemento 'elRemovido' da matriz e libera a memória usada por ele. */
+void remove_elem(Matriz *ultraCabeca, ApElemento elRemovido) {
+	elRemovido->ac->ab   = elRemovido->ab;
+	elRemovido->ab->ac   = elRemovido->ac;
+	elRemovido->dir->esq = elRemovido->esq;
+	elRemovido->esq->dir = elRemovido->dir;
+
+	FREE(elRemovido);
+	ultraCabeca->nelems--;
+}
+
+/* Insere um elemento de valor 'v' e índices 'i','j', dados os elementos
+ * sucessores. Assume 'v' != 0.
+ */
+void insere_elem(Matriz *ultraCabeca, int i, int j, float v, ApElemento apLinha, ApElemento apColuna) {
+	ApElemento novoElemento;
+
+	if (apLinha->col < j) {
+		erro("insere: apLinha inconsistente");
+	} else if (apColuna->lin < i) {
+		erro("insere: apColuna inconsistente");
+	}
+
+	novoElemento = MALLOC(sizeof(Elemento));
+	novoElemento->lin = i;
+	novoElemento->col = j;
+	novoElemento->val = v;
+
+	novoElemento->esq = apLinha->esq;
+	novoElemento->dir = apLinha;
+
+	novoElemento->ac = apColuna->ac;
+	novoElemento->ab = apColuna;
+
+	apLinha->esq = novoElemento;
+	apColuna->ac = novoElemento;
+
+	ultraCabeca->nelems++;
+}
+
+void atribui(Matriz *ultraCabeca, int i, int j, float v) {
+	ApElemento apLinha, apColuna;
+	encontra(ultraCabeca, i, j, &apLinha, &apColuna);
+
+	/* Elemento não existe; se "v" não é nulo, precisa encaixar: */
+	if (apLinha != apColuna) {
+		if (v != 0) {
+			insere_elem(ultraCabeca, i, j, v, apLinha, apColuna);
+		}
 	/* Elemento existe; se "v" é nulo, precisa remover, senão alterar: */
-		if (v != 0.0) { pl->val = v; } else { remove_elem(a, pl); }
+	} else {
+		if (v != 0) {
+			apLinha->val = v;
+		} else {
+			remove_elem(ultraCabeca, apLinha);
+		}
 	}
 }
 
