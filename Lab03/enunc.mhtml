@@ -1,0 +1,417 @@
+From: <Saved by WebKit>
+Subject: Laboratorio 03
+Date: Thu, 24 Sep 2014 23:41:43 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_F97D_4958B14D.3ED40A0A"
+
+------=_NextPart_000_F97D_4958B14D.3ED40A0A
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://susy.ic.unicamp.br:9999/mc202ef/03/enunc.html
+
+<html data-ember-extension=3D"1"><head><meta charset=3D"UTF-8">
+
+    <title>Laboratorio 03</title>
+<style type=3D"text/css"></style></head>
+<body bgcolor=3D"#CC9966" text=3D"#000000">
+
+<h3>Instituto de Computa=C3=A7=C3=A3o da UNICAMP</h3>
+
+<h3>Disciplina MC202: Segundo Semestre de 2014</h3>
+
+<h3>Laborat=C3=B3rio N=C2=BA 03</h3>
+
+<i>Prof.</i> <i>Tomasz Kowaltowski (Turmas E e F)</i>
+<p>
+</p><hr>
+<p>
+
+
+</p><p>O objetivo desta tarefa =C3=A9 treinar o uso da representa=C3=A7=C3=
+=A3o de
+matrizes esparsas usando listas ortogonais.</p>
+
+<p>A representa=C3=A7=C3=A3o est=C3=A1 definida no arquivo <tt>matrizes.h</=
+tt> e
+difere da estrutura descrita em aula e na se=C3=A7=C3=A3o 3.5 da apostila. =
+ O
+tipo <tt>elemento</tt> representa um elemento n=C3=A3o-nulo da matriz.
+Al=C3=A9m do valor <tt>val</tt> e dos =C3=ADndices <tt>lin</tt> e <tt>col</=
+tt>,
+cada elemento possui apontadores para o n=C3=B3 anterior e para o n=C3=B3
+seguinte na mesma linha e na mesma coluna, como representado
+abaixo. Em outras palavras, s=C3=A3o usadas <b>listas duplamente ligadas
+circulares com n=C3=B3s cabe=C3=A7a</b>.  Um elemento pode ser representado
+  esquematicamente pela figura seguinte:
+
+</p><blockquote>
+<img src=3D"https://susy.ic.unicamp.br:9999/mc202ef/03/elemento.jpg">
+</blockquote>
+
+<p>O tipo <tt>matriz</tt> =C3=A9 a representa=C3=A7=C3=A3o da matriz espars=
+a. Ele
+inclui as dimens=C3=B5es <tt>nlins</tt> (n=C3=BAmero de linhas) e <tt>ncols=
+</tt>
+(n=C3=BAmero de colunas) da matriz original, a contagem <tt>nelems</tt> de
+elementos n=C3=A3o nulos, e dois <b>vetores de apontadores</b>,
+<tt>clin</tt> e <tt>ccol</tt>, respectivamente para as cabe=C3=A7as das
+linhas e das colunas. Os vetores devem ser alocados dinamicamente e
+seus tamanhos s=C3=A3o, respectivamente, <tt>nlins+1</tt> e
+<tt>ncols+1</tt>, pois incluem as listas das cabe=C3=A7as das linhas e das
+colunas.  Os elementos das linhas e das colunas s=C3=A3o numerados a partir
+de 0 (como em C). Um n=C3=B3 do tipo <tt>matriz</tt> pode ser representado
+esquematicamente pela figura seguinte:
+
+
+</p><blockquote>
+<img src=3D"https://susy.ic.unicamp.br:9999/mc202ef/03/matriz.jpg">
+</blockquote>
+
+<p>Os elementos n=C3=A3o nulos de cada linha s=C3=A3o ligados pelos apontad=
+ores
+<tt>dir</tt> e <tt>esq</tt> de modo a formar lista circular
+com cabe=C3=A7a. Da mesma forma, os elementos de cada coluna s=C3=A3o ligad=
+os
+pelos apontadores <tt>abaixo (ab)</tt> e <tt>acima (ac)</tt>. As cabe=C3=A7=
+as das
+colunas tamb=C3=A9m s=C3=A3o ligadas entre si, como se elas formassem a lin=
+ha de
+=C3=ADndice <tt>nlins</tt>. As cabe=C3=A7as das linhas igualmente formam um=
+a
+coluna de =C3=ADndice <tt>ncols</tt>. Estas duas listas compartilham o
+mesmo n=C3=B3 super-cabe=C3=A7a <tt>clin[nlins] =3D ccol[ncols]</tt>.</p>
+
+
+<blockquote>
+<!-- <img -->
+<!-- SRC=3D"http://www.grad.ic.unicamp.br:8888/~mc202/exemplo-matriz.jpg"> =
+-->
+<img src=3D"https://susy.ic.unicamp.br:9999/mc202ef/03/exemplo_matriz.jpg">
+</blockquote>
+
+(Os n=C3=B3s cabe=C3=A7a est=C3=A3o =C3=A0 direita e embaixo.)
+
+<h3>O que deve ser feito</h3>
+
+<p>=C3=89 fornecido o programa principal e o esqueleto de um m=C3=B3dulo
+(<tt>matrizes</tt>) que define a estrutura de dados acima, e as
+opera=C3=A7=C3=B5es com matrizes. Sua tarefa =C3=A9 completar a implementa=
+=C3=A7=C3=A3o do
+m=C3=B3dulo <tt>matrizes</tt>, preenchendo os lugares marcados com
+"!!!COMPLETAR".</p>
+
+O programa principal =C3=A9 um interpretador de comandos que opera sobre as
+matrizes A, B, C e D.  Os significados dos comandos est=C3=A3o listados aba=
+ixo:
+
+<blockquote> <table> <tbody><tr> <td><b>z</b> &nbsp; <i>X &nbsp; nlin &nbsp=
+; ncol
+&nbsp; </i> </td><td><i> </i> inicializa matriz <i>X</i> de <i>nlin</i>
+linhas e  <i>ncol</i> colunas, identicamente nula;</td> </tr>
+
+<tr>=20
+<td><b>l &nbsp; <i>X</i> </b> </td><td> libera espa=C3=A7o ocupado pela
+representa=C3=A7=C3=A3o da matriz <i>X</i>;</td>
+</tr>
+
+<tr>=20
+<td><b>r &nbsp; <i> X</i> </b> </td><td>  inicializa e l=C3=AA a matriz X, =
+desde=20
+que suas
+dimens=C3=B5es e elementos sejam fornecidos da seguinte forma: </td></tr>
+<tr><td> </td><td> <pre>nlin ncol nelems
+  lin col val
+  lin col val
+  ...
+  lin col val
+</pre></td>
+</tr>
+
+<tr>=20
+<td><b>w &nbsp; <i>X</i> </b> </td><td>  imprime a matriz <i>X</i></td>
+</tr>
+
+<tr>=20
+<td><b>a &nbsp; <i>X &nbsp; lin &nbsp; col &nbsp; val&nbsp;</i> </b> </td><=
+td>=20
+atribui <i>val</i> a  <i>X[lin, col]</i></td>
+</tr>
+
+<tr>=20
+<td><b>v &nbsp; <i>X &nbsp; lin &nbsp; col &nbsp;</i> </b> </td><td>=20
+imprime (verifica) o valor de <i>X[lin, col]</i></td>
+</tr>
+
+<tr>=20
+<td><b>s &nbsp; <i>X &nbsp; Y &nbsp; Z &nbsp;</i> </b> </td><td>  <i>Z</i>
+recebe a soma de <i>X</i> e <i>Y</i></td>
+</tr>
+
+<tr>=20
+<td><b>m &nbsp; <i>X &nbsp; Y &nbsp; Z&nbsp;</i> </b> </td><td>  <i>Z</i>
+recebe o produto de <i>X</i> e <i>Y</i></td>
+</tr>
+
+<tr>=20
+<td><b>t &nbsp; <i>X &nbsp; Y &nbsp;</i> </b> </td><td>  <i>Y</i>
+recebe a transposta de <i>X</i></td>
+</tr>
+
+<tr>=20
+<td><b>x</b> </td><td>  encerra interpreta=C3=A7=C3=A3o</td>
+</tr>
+
+<tr>=20
+<td><b>#</b> </td><td>  linha de coment=C3=A1rio.</td>
+</tr>
+
+</tbody></table>
+</blockquote>
+
+Os testes est=C3=A3o classificados em quatro grupos, sendo que cada grupo
+corresponde a um conjunto de rotinas.
+
+<ul>
+<li><i>Grupo 1 </i> (<tt>arq11.in</tt> e <tt>arq12.in</tt>) -  testa as rot=
+inas: <i>inicializa,
+libera, valor</i> e <i> atribui</i>
+</li><li><i>Grupo 2</i> (<tt>arq21.in</tt>, <tt>arq22.in</tt> e <tt>arq23.i=
+n</tt>) - testa a rotina <i>soma</i>
+</li><li><i>Grupo 3</i> (<tt>arq31.in</tt> e <tt>arq32.in</tt>) - testa a r=
+otina <i>transposta</i>
+</li><li><i>Grupo 4</i> (<tt>arq41.in</tt>, <tt>arq42.in</tt> e <tt>arq43.i=
+n</tt>) - testa a rotina <i>multiplica</i>=20
+</li></ul>
+
+<h3>Observa=C3=A7=C3=B5es</h3>
+
+<ul>
+
+<li> <p align=3D"JUSTIFY"> O objetivo desta representa=C3=A7=C3=A3o =C3=A9 =
+evitar o
+armazenamento e manipula=C3=A7=C3=A3o expl=C3=ADcita dos elementos nulos.
+Portanto, <b>em momento algum durante a execu=C3=A7=C3=A3o de um programa,
+poder=C3=A1 existir na representa=C3=A7=C3=A3o um elemento com valor nulo</=
+b>.
+
+</p></li><li> <p align=3D"JUSTIFY"> A efici=C3=AAncia da implementa=C3=A7=
+=C3=A3o =C3=A9
+importante. Em particular, note que o procedimento <i>atribui</i>
+cont=C3=A9m uma malha para localizar o elemento na linha, e seu custo =C3=
+=A9
+proporcional ao n=C3=BAmero de elementos na mesma. Portanto,
+<i>insere_elem</i> (que tem custo constante) deve ser usado, sempre
+que poss=C3=ADvel, em vez de <i>atribui</i>. Veja <i>le_matriz</i>, por
+exemplo.
+
+</p></li><li> <p align=3D"JUSTIFY"><b>N=C3=A3o =C3=A9 permitido</b> modific=
+ar a interface
+(arquivo <tt>matrizes.h</tt>).
+
+</p></li><li> <p align=3D"JUSTIFY">Se desejar, pode declarar rotinas auxili=
+ares
+na parte marcada do arquivo <tt>matrizes.c</tt>.
+
+</p></li><li> <p align=3D"JUSTIFY">A fim de facilitar a verifica=C3=A7=C3=
+=A3o de
+gerenciamento de mem=C3=B3ria din=C3=A2mica, =C3=A9 fornecido o pacote
+<i>balloc</i> que cont=C3=A9m fun=C3=A7=C3=B5es especiais para alocar e des=
+alocar
+mem=C3=B3ria. Estas opera=C3=A7=C3=B5es devem ser realizadas utilizando-se =
+as fun=C3=A7=C3=B5es
+(macros) <i>MALLOC</i> e <i>FREE</i>, em lugar das fun=C3=A7=C3=B5es habitu=
+ais
+<i>malloc</i> e <i>free</i>. O programa principal invoca, ao final da
+execu=C3=A7=C3=A3o, a fun=C3=A7=C3=A3o <i>bapply(bprint)</i> que verifica s=
+e existe alguma
+=C3=A1rea de mem=C3=B3ria din=C3=A2mica que deixou de ser liberada. Caso ex=
+ista, =C3=A9
+impressa a localiza=C3=A7=C3=A3o do comendo que a alocou. <b>A sua implemen=
+ta=C3=A7=C3=A3o
+n=C3=A3o pode utilizar as opera=C3=A7=C3=B5es habituais de aloca=C3=A7=C3=
+=A3o.</b>
+
+</p></li><li> <p align=3D"JUSTIFY">O arquivo <i>tudo.zip</i> cont=C3=AAm to=
+dos os
+testes e seus resultados, bem como os arquivos <tt>principal.c</tt>,
+<tt>matrizes.h</tt> e uma vers=C3=A3o incompleta de <tt>matrizes.c</tt>,
+al=C3=A9m do pacote <i>balloc</i>.
+
+
+</p></li><li> <p align=3D"JUSTIFY">Deve ser submetido somente o arquivo
+<tt>matrizes.c</tt>.
+
+</p></li><li>O n=C3=BAmero m=C3=A1ximo de submiss=C3=B5es =C3=A9 10.
+
+</li></ul>
+
+<hr>
+<small>Last update: "enunc.html: 2014-07-28 (Mon)  11:40:27 BRT (tk)"=20
+</small>
+
+
+</body></html>
+------=_NextPart_000_F97D_4958B14D.3ED40A0A
+Content-Type: image/jpeg
+Content-Transfer-Encoding: base64
+Content-Location: https://susy.ic.unicamp.br:9999/mc202ef/03/elemento.jpg
+
+/9j/4AAQSkZJRgABAQEAUABQAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a
+HBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy
+MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCABSAKIDASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0fwn4
+btNT8G6Hf3l9rkl1dafbzTP/AG5eDc7RqWOBLgZJPStj/hDdL/5+tc/8Ht7/APHqPAn/ACTzw1/2
+CrX/ANFLXQUAc/8A8Ibpf/P1rn/g9vf/AI9R/wAIbpf/AD9a5/4Pb3/49XQUUAc//wAIbpf/AD9a
+5/4Pb3/49WP4T8N2mp+DdDv7y+1yS6utPt5pn/ty8G52jUscCXAySeldxXP+BP8Aknnhr/sFWv8A
+6KWgA/4Q3S/+frXP/B7e/wDx6j/hDdL/AOfrXP8Awe3v/wAeroKKAOf/AOEN0v8A5+tc/wDB7e//
+AB6j/hDdL/5+tc/8Ht7/APHq6CvD/if/AMJu3iHXP7K/tyO3W0tf7P8AsX2p/Nbf+88v7PtjTgvu
+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
+9c/8GM3/AMVR/wAJ34w/6GvXP/BjN/8AFUUUAH/Cd+MP+hr1z/wYzf8AxVH/AAnfjD/oa9c/8GM3
+/wAVRRQAf8J34w/6GvXP/BjN/wDFVHB408VWtvFb2/iXWYYIkCRxx38qqigYAADYAA4xRRQBJ/wn
+fjD/AKGvXP8AwYzf/FUf8J34w/6GvXP/AAYzf/FUUUAH/Cd+MP8Aoa9c/wDBjN/8VR/wnfjD/oa9
+c/8ABjN/8VRRQB9f+BP+SeeGv+wVa/8AopaKKKAP/9n/2P/gABBKRklGAAEBAQBQAFAAAP/bAEMA
+CAYGBwYFCAcHBwkJCAoMFA0MCwsMGRITDxQdGh8eHRocHCAkLicgIiwjHBwoNyksMDE0NDQfJzk9
+ODI8LjM0Mv/bAEMBCQkJDAsMGA0NGDIhHCEyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy
+MjIyMjIyMjIyMjIyMjIyMjIyMv/AABEIAFIAogMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAA
+AAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGR
+oQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdo
+aWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU
+1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJ
+Cgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVi
+ctEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqC
+g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl
+5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/APf6KKKACiiigAooooAKKKKACiiigAooooAKKKKA
+CiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK
+KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo
+ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii
+gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKA
+CiiigAooooA//9k=
+------=_NextPart_000_F97D_4958B14D.3ED40A0A
+Content-Type: image/jpeg
+Content-Transfer-Encoding: base64
+Content-Location: https://susy.ic.unicamp.br:9999/mc202ef/03/matriz.jpg
+
+/9j/4AAQSkZJRgABAQEAUABQAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a
+HBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIy
+MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAqAIQDASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0fwn4
+btNT8G6Hf3l9rkl1dafbzTP/AG5eDc7RqWOBLgZJPStj/hDdL/5+tc/8Ht7/APHqPAn/ACTzw1/2
+CrX/ANFLXm/jXxd4n0+8+IM9hrs9rHoH9nfY4Et4GQ+eFD7i8ZY9SRyMZ9OKAO4i0rwnPeLZxa/f
+SXTSyQLCnia7LmSMAyIF8/O5QQSOozzWh/whul/8/Wuf+D29/wDj1eT+E72WD4pW9qiQGO48V69v
+LwI7jbBERtcgsnvtIz0ORVSPx54wTw14T1N/FUiSazb6m1w0+nRyxQmAMEYLFFvAHUn5gMZIKgqQ
+D2P/AIQ3S/8An61z/wAHt7/8erH8J+G7TU/Buh395fa5JdXWn280z/25eDc7RqWOBLgZJPSqfwx8
+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
+78Yf9DXrn/gxm/8AiqAPrfxT4TuNd1jQtZ07Vf7O1LR5ZHid7cTxyJIoV0ZMqeQAMhhgE98Ec/af
+DPWdP1HUbu18cXwk1iKJNVme1QzSOp5eFwR5PylkUYbYDxkhdvzR/wAJ34w/6GvXP/BjN/8AFUf8
+J34w/wChr1z/AMGM3/xVAH0nqfwou79Nb02LxPJBoOtamNRu7P7CjS7iwZ1SXdwGYKRlTjYvX5t3
+WeFfDH/CM/23/pn2n+09Vn1L/VbPK8zb8nU5xt68Zz0FfIH/AAnfjD/oa9c/8GM3/wAVR/wnfjD/
+AKGvXP8AwYzf/FUAfb9FfEH/AAnfjD/oa9c/8GM3/wAVR/wnfjD/AKGvXP8AwYzf/FUAfX/h7/kO
+eLP+wrH/AOkVrRXD/s/X95qfgjU7y/u57u6k1V9808hkdsQwgZY8nAAH4UUAf//Z/9j/4AAQSkZJ
+RgABAQEAUABQAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIs
+IxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIy
+MjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAqAIQDASIAAhEBAxEB/8QA
+HwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQR
+BRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdI
+SUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2
+t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEB
+AQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMi
+MoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpj
+ZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbH
+yMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigAooooAKKKKA
+CiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK
+KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP//Z
+------=_NextPart_000_F97D_4958B14D.3ED40A0A--
