@@ -4,7 +4,23 @@
 * Disciplina: MC202            Turma: F
 * Data: 17/09/2014
 *
+* Implementação do de uma estrutura de matriz esparsa. As linhas e colunas da
+* matriz são numeradas de 0 a 'nlins'-1 e 0 a 'ncols'-1, respectivamente, onde
+* 'nlins' e 'ncols' são o número de linhas e colunas na matriz, respectivamente.
 *
+* Cada termo não nulo da matriz possui apontadores 'ac', 'ab', 'dir' e 'esq' que
+* apontam, respectivamente, para os termos acima, abaixo, à direita e à esquerda
+* deste.
+*
+* Toda linha possuí um nó cabeça, de indíce 'i','ncols', onde 'i' é o índice da
+* linha. Analogamente, toda coluna possui um nó cabeça, de indíce 'nlins','j',
+* onde 'j' é o índice da coluna. O nó super cabeça, de índice 'nlins','ncols' é
+* o cabeça da coluna de cabeças das linhas e da linha de cabeças das colunas.
+*
+* O ponteiro principal da matriz possui dois vetores 'clin' e 'ccol' que possuem
+* respectivamente apontadores para os nós cabeça de todas linhas e colunas. Além
+* disso, esse ponteiro também mantém uma referência ao número total de elementos
+* existentes na matriz.
 */
 
 #include <stdio.h>
@@ -48,12 +64,12 @@ void inicializa(Matriz *A, int numLinhas, int numColunas) {
 	A->nelems = 0;
 	A->nlins  = numLinhas;
 	A->ncols  = numColunas;
-	A->clin   = MALLOC((numLinhas + 1) * sizeof(ApElemento));
-	A->ccol   = MALLOC((numColunas + 1) * sizeof(ApElemento));
+	A->clin   = (ApElemento*) MALLOC((numLinhas + 1) * sizeof(ApElemento));
+	A->ccol   = (ApElemento*) MALLOC((numColunas + 1) * sizeof(ApElemento));
 
 
 	/* Cria a 'super' cabeça. */
-	superCabeca = MALLOC(sizeof(Elemento));
+	superCabeca = (ApElemento) MALLOC(sizeof(Elemento));
 	if (superCabeca == NULL) {
 		erro("inicializa: memória esgotada");
 	}
@@ -72,7 +88,7 @@ void inicializa(Matriz *A, int numLinhas, int numColunas) {
 
 	/* Cria cabeças das linhas. */
 	for (i = 0; i < numLinhas; i++) {
-		tempCabeca = MALLOC(sizeof(Elemento));
+		tempCabeca = (ApElemento) MALLOC(sizeof(Elemento));
 		if (tempCabeca == NULL) {
 			erro("inicializa: memória esgotada");
 		}
@@ -93,7 +109,7 @@ void inicializa(Matriz *A, int numLinhas, int numColunas) {
 
 	/* Cria cabeças das colunas. */
 	for (i = 0; i < numColunas; i++) {
-		tempCabeca = MALLOC(sizeof(Elemento));
+		tempCabeca = (ApElemento) MALLOC(sizeof(Elemento));
 		if (tempCabeca == NULL) {
 			erro("inicializa: memória esgotada");
 		}
@@ -152,8 +168,7 @@ void encontra(Matriz *A, int i, int j, ApElemento *apApLinha, ApElemento *apApCo
 	}
 
 	/* Percorre a linha 'i' procurando pelo elemento, ou seu predecessor */
-	apLinha = A->clin[i];
-	apLinha = apLinha->dir;
+	apLinha = A->clin[i]->dir;
 
 	while (apLinha->col < j) {
 		apLinha = apLinha->dir;
@@ -225,8 +240,10 @@ void insere_elem(Matriz *A, int i, int j, float v, ApElemento apLinha, ApElement
 	novoElemento->ac = apColuna->ac;
 	novoElemento->ab = apColuna;
 
-	apLinha->esq = novoElemento;
-	apColuna->ac = novoElemento;
+	novoElemento->ac->ab   =
+	novoElemento->ab->ac   =
+	novoElemento->esq->dir =
+	novoElemento->dir->esq = novoElemento;
 
 	A->nelems++;
 }
@@ -294,12 +311,16 @@ void imprime_matriz(matriz *a) {
 	}
 }
 
+/* Coloca em 'T' a matriz transposta de matriz 'A'. */
 void transpoe(Matriz *A, Matriz *T) {
 	int i;
 	ApElemento apLinha;
 
 	inicializa(T, A->ncols, A->nlins);
 
+	/* Insere em 'T' todos os elementos de 'A', invertendo as linhas com as
+	 * colunas.
+	 */
 	for (i = 0; i < A->nlins; i++) {
 		apLinha = A->clin[i]->dir;
 
@@ -310,6 +331,9 @@ void transpoe(Matriz *A, Matriz *T) {
 	}
 }
 
+/* Coloca em 'S' a soma das matrizes 'A' e 'B', que devem ter todas as mesmas
+ * dimensões.
+ */
 void soma(Matriz *A, Matriz *B, Matriz *S) {
 	ApElemento apLinhaA, apLinhaB;
 	int i;
@@ -324,15 +348,21 @@ void soma(Matriz *A, Matriz *B, Matriz *S) {
 		apLinhaA = A->clin[i]->dir;
 		apLinhaB = B->clin[i]->dir;
 
+
+		/* Percorremos as linha de A e B usando o paradigma de intercalação. */
 		while (apLinhaA->col != A->ncols || apLinhaB->col != B->ncols) {
 			if (apLinhaA->col < apLinhaB->col) {
-				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val, S->clin[i], S->clin[apLinhaA->col]);
+				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val, S->clin[i], S->ccol[apLinhaA->col]);
 				apLinhaA = apLinhaA->dir;
 			} else if (apLinhaA->col > apLinhaB->col) {
-				insere_elem(S, apLinhaB->lin, apLinhaB->col, apLinhaB->val, S->clin[i], S->clin[apLinhaB->col]);
+				insere_elem(S, apLinhaB->lin, apLinhaB->col, apLinhaB->val, S->clin[i], S->ccol[apLinhaB->col]);
 				apLinhaB = apLinhaB->dir;
 			} else {
-				insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val + apLinhaB->val, S->clin[i], S->clin[apLinhaA->col]);
+				/* Não inserimos valores nulos. */
+				if (apLinhaA->val + apLinhaB->val != 0) {
+					insere_elem(S, apLinhaA->lin, apLinhaA->col, apLinhaA->val + apLinhaB->val, S->clin[i], S->ccol[apLinhaA->col]);
+				}
+
 				apLinhaA = apLinhaA->dir;
 				apLinhaB = apLinhaB->dir;
 			}
@@ -340,8 +370,12 @@ void soma(Matriz *A, Matriz *B, Matriz *S) {
 	}
 }
 
+/* Retorna na matriz 'P' o produto das matrizes 'A' e 'B'. O número de colunas
+ * de 'A' deve ser igual ao número de linhas de 'B'.
+ */
 void multiplica(Matriz *A, Matriz *B, Matriz *P) {
 	ApElemento apLinhaA, apColunaB;
+	float valorElemento;
 	int i, j;
 
 	if (A->ncols != B->nlins) {
@@ -351,21 +385,30 @@ void multiplica(Matriz *A, Matriz *B, Matriz *P) {
 	inicializa(P, A->nlins, B->ncols);
 
 	for (i = 0; i < A->nlins; i++) {
-		apLinhaA = A->clin[i]->dir;
 
 		for (j = 0; j < B->ncols; j++) {
+			valorElemento = 0;
+			apLinhaA  = A->clin[i]->dir;
 			apColunaB = B->ccol[j]->ab;
 
-			while (apLinhaA->col != A->ncols && apColunaB->col != B->ncols) {
+			/* Percorremos a linha de A e a coluna de B usando o paradigma de
+			 * intercalação.
+			 */
+			while (apLinhaA->col != A->ncols && apColunaB->lin != B->nlins) {
 				if (apLinhaA->col < apColunaB->lin) {
 					apLinhaA = apLinhaA->dir;
 				} else if (apLinhaA->col > apColunaB->lin) {
 					apColunaB = apColunaB->ab;
 				} else {
-					insere_elem(P, apLinhaA->lin, apLinhaA->col, apLinhaA->val * apColunaB->val, P->clin[i], P->clin[j]);
+					valorElemento += apLinhaA->val * apColunaB->val;
 					apLinhaA = apLinhaA->dir;
 					apColunaB = apColunaB->ab;
 				}
+			}
+
+			/* Não inserimos valores nulos. */
+			if (valorElemento != 0) {
+				insere_elem(P, i, j, valorElemento, P->clin[i], P->ccol[j]);
 			}
 		}
 	}
