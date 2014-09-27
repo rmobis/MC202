@@ -1,4 +1,16 @@
-/* Implementação de pilhas. Os elementos empilhados são do tipo void*.     */
+/**
+ * Programa: polinomios.c
+ * Autor: Raphael Mobis Tacla   RA: 157104
+ * Disciplina: MC202            Turma: F
+ * Data: 27/09/2014
+ *
+ * Este módulo implementa operações sobre uma pilha de elementos do tipo void*.
+ * A pilha é implementada como um struct com um vetor 'vetor' e um membro 'topo'
+ * que indica o item no topo da pilha. Pilhas vazias possuem 'topo' igual a 0.
+ * Implementa verificações para casos onde tetamos empilhar mais elementos em
+ * uma pilha já cheia ou quando tentamos desempilhar elementos de uma pilha já
+ * vazia.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,28 +20,34 @@
 #define MSG_ERRO_PILHA_CHEIA "número máximo de elementos na pilha excedido."
 #define MSG_ERRO_PILHA_VAZIA "tentativa de desempilhar elemento de pilha vazia."
 
-#define IMPRIME_ERRO(msg)  {printf("%s\n",msg); exit(0); }
+#define IMPRIME_ERRO(msg)  { printf("%s\n",msg); exit(0); }
 
-
+/* Inicializa uma pilha. */
 void CriaPilha (Pilha* p) {
-/* Inicializa uma pilha.                                                   */
-  /*----- COMPLETAR -----*/
+	p = MALLOC(sizeof(Pilha));
+	p->topo = -1;
 }
 
+/* Verifica se a pilha está vazia. */
 Boolean PilhaVazia (Pilha* p) {
-/* Verifica se a pilha está vazia.                                         */
-  /*----- COMPLETAR -----*/
-  return false; /*-- PROVISÓRIO --*/
+	return p->topo == -1;
 }
 
 void Empilha (Pilha* p, void *elem) {
-/* Empilha um elemento na pilha.                                           */
-  /*----- COMPLETAR -----*/
+	(p->topo)++;
+
+	if (p->topo >= MAX_ELEM_PILHA) {
+		IMPRIME_ERRO(MSG_ERRO_PILHA_CHEIA);
+	}
+
+	p->vetor[p->topo] = elem;
 }
 
+/* Desempilha um elemento da pilha. */
 void* Desempilha (Pilha* p) {
-/* Desempilha um elemento da pilha.                                        */ 
-  /*----- COMPLETAR -----*/
-  return NULL; /*-- PROVISÓRIO --*/
-}
+    if (PilhaVazia(p)) {
+    	IMPRIME_ERRO(MSG_ERRO_PILHA_VAZIA);
+    }
 
+	return p->vetor[(p->topo)--];
+}
