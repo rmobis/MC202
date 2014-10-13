@@ -1,5 +1,5 @@
 /**
- * Programa: polinomios.c
+ * Programa: pilha.c
  * Autor: Raphael Mobis Tacla   RA: 157104
  * Disciplina: MC202            Turma: F
  * Data: 27/09/2014
@@ -12,8 +12,8 @@
  * vazia.
  */
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "pilha.h"
 
 /* Mensagens de erro para este módulo.                                     */
@@ -24,7 +24,6 @@
 
 /* Inicializa uma pilha. */
 void CriaPilha (Pilha* p) {
-	p = MALLOC(sizeof(Pilha));
 	p->topo = -1;
 }
 

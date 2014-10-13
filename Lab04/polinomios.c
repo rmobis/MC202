@@ -10,9 +10,9 @@
  * seus expoentes. O nó cabeça tem expoente '-1'.
  */
 
+#include <stdio.h>
 #include "polinomios.h"
 #include "balloc.h"
-#include <stdio.h>
 
 /* Insere o termo '(e, c)' após o nó apontado por 'p'. */
 void InsereTermoAux(Polinomio p, int e, float c) {
@@ -194,4 +194,19 @@ Polinomio MultPolinomios(Polinomio a, Polinomio b) {
 	}
 
 	return c;
+}
+
+/* Copia um polinomio para uma outra posição da memória. */
+Polinomio CopiaPolinomio(Polinomio p) {
+	Polinomio q = CriaPolinomioNulo();
+
+	p = p->prox;
+
+	while (p->expo != -1) {
+		InsereTermoAux(q, p->expo, p->coef);
+		p = p->prox;
+		q = q->prox;
+	}
+
+	return q->prox;
 }

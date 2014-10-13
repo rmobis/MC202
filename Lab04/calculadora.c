@@ -1,5 +1,12 @@
-/* Módulo de cálculo de expressões pós-fixas sobre uma base de dados     */
-/* formada por polinômios em uma variável.                               */
+/**
+ * Programa: calculadora.c
+ * Autor: Raphael Mobis Tacla   RA: 157104
+ * Disciplina: MC202            Turma: F
+ * Data: 06/10/2014
+ *
+ * Este módulo implementa o cálculo de expressões pós-fixas sobre uma base de
+ * dados formada por polinômios em uma variável.
+ */
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -24,6 +31,11 @@
 Polinomio vetorPoli[TAM_BASE];
 
 Boolean Operando(char *op);
+
+/* Como não podemos alterar o polinomios.h, fazemos essa pequena gambiarra e
+ * declaramos essa o protótipo dessa função aqui mesmo.
+ */
+Polinomio CopiaPolinomio(Polinomio p);
 
 /* Inicializa polinômios com NULL, indicando que não há polinômios válidos na
  * base.
@@ -66,8 +78,12 @@ typedef struct ElemPilha {
 	Boolean temp;
 } ElemPilha;
 
+/* Definição da ordem de precedência dos operadores. */
 typedef enum {
-	Soma,
+	/* Temos que começar o enum em 1 pois eles será convertido para um char e o
+	 * char de valor 0 é o representante do final de uma cadeia de caracteres.
+	 */
+	Soma = 1,
 	Subtracao,
 	Produto,
 	MenosUnario
@@ -77,7 +93,7 @@ typedef enum {
 /* Desempilha um elemento, enviando uma mensagem de erro caso a pilha esteja
  * vazia.
  */
-ElemPilha* VerificaDesempilha (Pilha* pilha) {
+ElemPilha* VerificaDesempilha(Pilha* pilha) {
 	if (PilhaVazia(pilha)) {
 		IMPRIME_ERRO(MSG_ERRO_FALTA_OPERANDO);
 	}
@@ -93,16 +109,20 @@ void EmpilhaOperando(Pilha* pilha, Polinomio poli, Boolean temp) {
 	Empilha(pilha, elem);
 }
 
-/* Verifica se o ponteiro aponta para um cactere que representa um operando
+/* Verifica se o ponteiro aponta para um craactere que representa um operando
  * válido. Caso o valor apontado seja uma letra, este é modificado para sua
  * versão maiúscula.
  */
 Boolean Operando(char *op) {
- 	*op = toupper(*op);
+	*op = toupper(*op);
 
 	return (*op >= 'A' && *op < ('A' + TAM_BASE));
 }
 
+/* Verifica se o ponteiro aponta para um caractere que representa um operador
+ * válido. Caso o valor apontado seja, este é modificado para o equivalente do
+ * tipo 'OrdemOperador'.
+ */
 Boolean Operador(char *opChar) {
 	if (*opChar == '+') {
 		*opChar = (char) Soma;
@@ -119,35 +139,39 @@ Boolean Operador(char *opChar) {
 	return true;
 }
 
+/* Dado a pilha de operandos e um operador, desempilha o número de operandos
+ * necessários para aquela operação, executa a operação e empilha o resultado.
+ */
 void ExecutaOperacao(Pilha *polPilha, OrdemOperador op) {
 	Polinomio r;
 	ElemPilha *a, *b;
 
 	a = VerificaDesempilha(polPilha);
 
+	/* Operadores unários só precisam de um operando. */
 	if (op == MenosUnario) {
 		r = MultTermo(a->poli, 0, -1);
 	} else {
 		b = VerificaDesempilha(polPilha);
 
 		if (op == Soma) {
-			r = SomaPolinomios(a->poli, b->poli);
+			r = SomaPolinomios(b->poli, a->poli);
 		} else if (op == Subtracao) {
-			r = SubPolinomios(a->poli, b->poli);
-		} else if (op == Produto) {
-			r = MultPolinomios(a->poli, b->poli);
+			r = SubPolinomios(b->poli, a->poli);
+		} else {
+			r = MultPolinomios(b->poli, a->poli);
 		}
 
 		if (b->temp) {
 			LiberaPolinomio(b->poli);
-			FREE(b);
 		}
+		FREE(b);
 	}
 
 	if (a->temp) {
-		LiberaPolinomio(b->poli);
-		FREE(b);
+		LiberaPolinomio(a->poli);
 	}
+	FREE(a);
 
 	EmpilhaOperando(polPilha, r, true);
 }
@@ -156,32 +180,19 @@ void ExecutaOperacao(Pilha *polPilha, OrdemOperador op) {
  * sempre uma nova cópia, mesmo que a expressão seja uma variável simples.
  */
 Polinomio CalcExpr(char* expr) {
-	Pilha *polPilha = NULL, *opPilha = NULL;
-	OrdemOperador prevOp;
+	Pilha polPilha;
 	ElemPilha *r;
+	Polinomio p;
 	int i;
 
-	CriaPilha(polPilha);
-	CriaPilha(opPilha);
+	CriaPilha(&polPilha);
 
 	i = 0;
 	while (expr[i] != '\0') {
-		if (Operando(&expr[i])) {
-			EmpilhaOperando(polPilha, RecuperaPolinomio(expr[i]), false);
-		} else if (Operador(&expr[i])) {
-			if (PilhaVazia(opPilha)) {
-				Empilha(opPilha, &expr[i]);
-			} else {
-				prevOp = *((OrdemOperador*)Desempilha(opPilha));
-
-				if (prevOp >= expr[i]) {
-					ExecutaOperacao(polPilha, prevOp);
-				} else {
-					Empilha(opPilha, &prevOp);
-				}
-
-				Empilha(opPilha, &expr[i]);
-			}
+		if (Operando(expr + i)) {
+			EmpilhaOperando(&polPilha, RecuperaPolinomio(expr[i]), false);
+		} else if (Operador(expr + i)) {
+			ExecutaOperacao(&polPilha, expr[i]);
 		} else {
 			IMPRIME_ERRO(MSG_ERRO_CARACTERE_INVALIDO);
 		}
@@ -189,15 +200,19 @@ Polinomio CalcExpr(char* expr) {
 		i++;
 	}
 
-	while (!PilhaVazia(opPilha)) {
-		ExecutaOperacao(polPilha, *((OrdemOperador*)Desempilha(opPilha)));
-	}
+	r = VerificaDesempilha(&polPilha);
 
-	r = VerificaDesempilha(polPilha);
-
-	if (!r->temp) {
+	if (!PilhaVazia(&polPilha)) {
 		IMPRIME_ERRO(MSG_ERRO_FALTA_OPERADOR);
 	}
 
-	return r->poli;
+	if (r->temp) {
+		p = r->poli;
+	} else {
+		p = CopiaPolinomio(r->poli);
+	}
+
+	FREE(r);
+
+	return p;
 }
