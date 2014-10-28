@@ -1,22 +1,22 @@
 /**
-* Programa: analisador.c
-* Autor: Raphael Mobis Tacla   RA: 157104
-* Disciplina: MC202            Turma: F
-* Data: 06/10/2014
-*
-* MÛdulo de transformaÁ„o de expressıes na notaÁ„o infixa para pÛs-fixa.
-*/
+ * Programa: analisador.c
+ * Autor: Raphael Mobis Tacla   RA: 157104
+ * Disciplina: MC202            Turma: F
+ * Data: 06/10/2014
+ *
+ * M√≥dulo de transforma√ß√£o de express√µes na nota√ß√£o infixa para p√≥s-fixa.
+ */
 
 #include "analisador.h"
 
 #define NULL 0
 
-/* Vari·veis globais a este mÛdulo */
-char *in;  /* Cadeia e Ìndice para express„o infixa (entrada). */
-char *pos; /* Cadeia e Ìndice para express„o pÛsfixa (saÌda). */
+/* Vari√°veis globais a este m√≥dulo */
+char *in;  /* Cadeia e √≠ndice para express√£o infixa (entrada). */
+char *pos; /* Cadeia e √≠ndice para express√£o p√≥sfixa (sa√≠da). */
 
-/* ProtÛtipos das funÁıes mutuamente recursivas. Optamos por retornar apenas
- * o cÛdigo do erro, sem sua posiÁ„o, pois esta pode ser calculada depois, como
+/* Prot√≥tipos das fun√ß√µes mutuamente recursivas. Optamos por retornar apenas
+ * o c√≥digo do erro, sem sua posi√ß√£o, pois esta pode ser calculada depois, como
  * explicitado mais abaixo.
  */
 CodigosErro Expressao();
@@ -24,17 +24,17 @@ CodigosErro Termo();
 CodigosErro Fator();
 CodigosErro Primario();
 
-/* FunÁıes Auxiliares */
+/* Fun√ß√µes Auxiliares */
 void Sai(char c);
 void PulaBrancos();
 
 /*************************************************************/
-/*                 FunÁ„o   principal                        */
+/*                 Fun√ß√£o   principal                        */
 /*************************************************************/
 
-/* Transforma uma express„o da notaÁ„o infixa para a pÛs-fixa. Em caso de erro,
-* devolve o cÛdigo e a posiÁ„o na cadeia de entrada onde o erro foi encontrado.
-*/
+/* Transforma uma express√£o da nota√ß√£o infixa para a p√≥s-fixa. Em caso de erro,
+ * devolve o c√≥digo e a posi√ß√£o na cadeia de entrada onde o erro foi encontrado.
+ */
 Erro InPos(char *infixa, char *posfixa) {
 	Erro e;
 	char c;
@@ -50,8 +50,8 @@ Erro InPos(char *infixa, char *posfixa) {
 	} else {
 		e.codigoErro = Expressao();
 
-		/* A posiÁ„o pode ser calculada pelo endereÁo final, que È onde o ˙ltimo
-		 * caractere foi lido, subtraÌdo do endereÁo inicial, dividido pelo
+		/* A posi√ß√£o pode ser calculada pelo endere√ßo final, que √© onde o √∫ltimo
+		 * caractere foi lido, subtra√≠do do endere√ßo inicial, dividido pelo
 		 * tamanho de um char.
 		 */
 		e.posicao = ((int)(in - infixa)) / sizeof(char);
@@ -64,8 +64,8 @@ Erro InPos(char *infixa, char *posfixa) {
 			}
 		}
 
-		/* Se tivemos algum erro, verificamos se na verdade n„o era um caractere
-		 * inv·lido.
+		/* Se tivemos algum erro, verificamos se na verdade n√£o era um caractere
+		 * inv√°lido.
 		 */
 		if (e.codigoErro != EXPR_VALIDA) {
 			if (
@@ -86,10 +86,10 @@ Erro InPos(char *infixa, char *posfixa) {
 }
 
 /*************************************************************/
-/*           FunÁıes de implementaÁ„o do analisador          */
+/*           Fun√ß√µes de implementa√ß√£o do analisador          */
 /*************************************************************/
 
-/* Coloca o caractere 'c' no vetor de saÌda. */
+/* Coloca o caractere 'c' no vetor de sa√≠da. */
 void Sai(char c) {
 	*pos = c;
 	pos++;
@@ -102,14 +102,14 @@ void PulaBrancos() {
 	}
 }
 
-/* Processa uma express„o da cadeia de entrada. */
+/* Processa uma express√£o da cadeia de entrada. */
 CodigosErro Expressao() {
 	CodigosErro e;
 	char op = NULL;
 
 	PulaBrancos();
 
-	/* Operadores Un·rios */
+	/* Operadores Un√°rios */
 	if (*in == '+') {
 		op = '&';
 		in++;
@@ -123,7 +123,7 @@ CodigosErro Expressao() {
 		return e;
 	}
 
-	/* Operadores Un·rios */
+	/* Operadores Un√°rios */
 	if (op != NULL) {
 		Sai(op);
 	}
@@ -205,7 +205,7 @@ CodigosErro Fator() {
 }
 
 
-/* Processa um prim·rio da cadeia de entrada. */
+/* Processa um prim√°rio da cadeia de entrada. */
 CodigosErro Primario() {
 	CodigosErro e;
 
