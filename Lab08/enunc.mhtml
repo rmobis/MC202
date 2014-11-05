@@ -1,0 +1,191 @@
+From: <Saved by WebKit>
+Subject: Laboratorio 07
+Date: Thu, 5 Nov 2014 21:29:47 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_3CEC_D489A43A.AEB6586E"
+
+------=_NextPart_000_3CEC_D489A43A.AEB6586E
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://susy.ic.unicamp.br:9999/mc202ef/08A/enunc.html
+
+<html data-ember-extension=3D"1"><head><meta charset=3D"UTF-8">
+
+    <title>Laboratorio 07</title>
+<style type=3D"text/css"></style></head>
+<body bgcolor=3D"#CC9966" text=3D"#000000">
+
+<h3>Instituto de Computa=C3=A7=C3=A3o da UNICAMP</h3>
+
+<h3>Disciplina MC202: Segundo Semestre de 2014</h3>
+
+<h3>Laborat=C3=B3rio N=C2=BA 08</h3>
+
+<i>Prof.</i> <i>Tomasz Kowaltowski </i>
+<p>
+</p><hr>
+<p>
+
+</p><p align=3D"JUSTIFY"> O objetivo deste laborat=C3=B3rio =C3=A9 a implem=
+enta=C3=A7=C3=A3o e
+teste de uma base de dados semelhante =C3=A0 proposta no Laborat=C3=B3rio 0=
+7.
+Desta vez, a base de dados ser=C3=A1 implementada atrav=C3=A9s de uma
+<b><i>=C3=A1rvore AVL</i></b>. A implementa=C3=A7=C3=A3o seguir=C3=A1 novam=
+ente a id=C3=A9ia de
+um tipo abstrato de dados realizado atrav=C3=A9s de um par de arquivos
+<tt>base.h</tt> e <tt>base.c</tt> e testado por um programa
+<tt>principal.c</tt>. O programa principal aceita os seguintes
+comandos:
+
+</p><blockquote>=20
+<table>=20
+<tbody><tr>=20
+<td><b>i &nbsp; <i>ra</i> &nbsp; <i>nome</i>&nbsp;</b> </td>
+    <td> insere novo registro com <i>ra</i> e <i>nome</i> na base;</td>
+</tr>
+
+<tr>=20
+<td><b>c &nbsp; <i>ra</i> &nbsp;</b> </td>
+    <td> consulta registro com <i>ra</i> na base;</td>
+</tr>
+
+<tr>=20
+<td><b>d</b> </td><td>  imprime a base sob forma gr=C3=A1fica;</td>
+</tr>
+
+<tr>=20
+<td><b>r &nbsp; <i>ra</i> &nbsp;</b> </td>
+    <td> remove registro com <i>ra</i> da base;</td>
+</tr>
+
+<tr>=20
+<td><b>l &nbsp;</b> </td>
+    <td> libera espa=C3=A7o ocupado pela base;</td>
+</tr>
+
+<tr>=20
+<td><b>n &nbsp;</b> </td>
+    <td> imprime o n=C3=BAmero de elementos na base;</td>
+</tr>
+
+<tr>=20
+<td><b>a &nbsp;</b> </td>
+    <td> imprime a altura da base (=C3=A1rvore bin=C3=A1ria);</td>
+</tr>
+
+<tr>=20
+<td><b>p &nbsp; </b></td>
+    <td> executa um percurso inordem na base, imprimindo os elementos;</td>
+</tr>
+
+<tr>=20
+<td><b>h</b> </td><td>  imprime resumo dos comandos;</td>
+</tr>
+
+<tr>=20
+<td><b>x</b> ou <b>q</b> </td><td>  encerra interpreta=C3=A7=C3=A3o;</td>
+</tr>
+
+<tr>=20
+<td><b>#</b> </td><td>  linha de coment=C3=A1rio.</td>
+</tr>
+
+</tbody></table>
+</blockquote>
+
+<p>
+<b>Observa=C3=A7=C3=B5es:</b>
+</p><ol>
+
+<li> <p align=3D"justify"> Um  <b>RA</b> sempre ser=C3=A1 <b>representado p=
+or
+um n=C3=BAmero inteiro</b> e <b>n=C3=A3o</b> =C3=A9 precedido das letras <t=
+t>RA</tt>.
+=20
+</p></li><li> <p align=3D"justify">A representa=C3=A7=C3=A3o da base est=C3=
+=A1 escondida do
+usu=C3=A1rio que deve enxerg=C3=A1-la apenas como um <i>tipo abstrato de
+dados</i>. Note no arquivo <tt>base.h</tt> que isso =C3=A9 feito em
+<i>C</i> definindo o tipo <tt>Base</tt> como um apontador do tipo
+<tt>void</tt>.  A declara=C3=A7=C3=A3o do tipo <i>=C3=A1rvore AVL</i> ficar=
+=C3=A1
+escondida no arquivo <tt>base.c</tt> onde as convers=C3=B5es de tipo
+apropriadas (<i>casting</i>) dever=C3=A3o ser efetuadas.
+
+</p></li><li><p align=3D"justify"> A opera=C3=A7=C3=A3o de remo=C3=A7=C3=A3=
+o =C3=A9 <b>opcional</b> e vale
+at=C3=A9 2 pontos extra na <b>vers=C3=A3o A</b> desta tarefa (at=C3=A9 12 p=
+ontos), sendo que
+a m=C3=A9dia final m=C3=A1xima de laborat=C3=B3rio (todas as tarefas) =C3=
+=A9 10.
+
+</p></li><li><p align=3D"justify"> A vers=C3=A3o B n=C3=A3o testa a fun=C3=
+=A7=C3=A3o de remo=C3=A7=C3=A3o e
+  vale no m=C3=A1ximo 10. =20
+
+</p></li><li><p align=3D"justify"> Se for feita submiss=C3=A3o nas duas ver=
+s=C3=B5es,
+  valer=C3=A1 aquela que produzir resultados corretos.  Se ambas submiss=C3=
+=B5es
+  produzirem resultados corretos, valer=C3=A1 a vers=C3=A3o A.
+
+</p></li><li><p align=3D"justify"> Para as opera=C3=A7=C3=B5es de inser=C3=
+=A7=C3=A3o e remo=C3=A7=C3=A3o da
+base de dados =C3=A9 importante que sejam seguidas as id=C3=A9ias explicada=
+s em
+aula e expostas nas transpar=C3=AAncias e na apostila. Para a remo=C3=A7=C3=
+=A3o, em
+caso de ajuste na =C3=A1rvore dever=C3=A1 ser usado o sucessor no percurso =
+em
+inordem como substituto do n=C3=B3 removido (<u>m=C3=ADnimo da sub=C3=A1rvo=
+re
+direita</u>).
+
+</p></li><li> <p align=3D"JUSTIFY">Devem ser utilizadas as macros <i>MALLOC=
+</i>
+e <i>FREE</i> fornecidas com o pacote <i>balloc</i>. A sua
+implementa=C3=A7=C3=A3o n=C3=A3o pode utilizar as opera=C3=A7=C3=B5es habit=
+uais de
+aloca=C3=A7=C3=A3o.
+
+</p></li><li><p align=3D"justify"> A fun=C3=A7=C3=A3o <i>VerificaBase</i> d=
+eclarada em
+<tt>principal.c</tt> =C3=A9 invocada pelo programa principal imediatamente
+ap=C3=B3s uma inser=C3=A7=C3=A3o ou remo=C3=A7=C3=A3o e percorre a base con=
+ferindo as
+restri=C3=A7=C3=B5es de =C3=A1rvores AVL. Algumas fun=C3=A7=C3=B5es (<i>Sub=
+Esq</i>,
+<i>SubDir</i>,<i>FatorBal</i>) foram inclu=C3=ADdas na especifica=C3=A7=C3=
+=A3o
+somente para permitir esta verifica=C3=A7=C3=A3o.
+
+</p></li><li><p align=3D"justify"> A fun=C3=A7=C3=A3o <i>ImprimeBase</i> ex=
+ibe a =C3=A1rvore
+bin=C3=A1ria "deitada", com a raiz do lado esquerdo. A fun=C3=A7=C3=A3o =C3=
+=A9 fornecida
+pronta no arquivo incompleto <tt>base.c</tt> e utiliza o pacote
+<tt>imprimearvore</tt> tamb=C3=A9m fornecido na =C3=ADntegra. A fun=C3=A7=
+=C3=A3o =C3=A9 chamada
+pelo comando <b>d</b> explicado acima. Inser=C3=A7=C3=A3o deste comando em =
+mais
+pontos dos arquivos de teste pode facilitar a depura=C3=A7=C3=A3o.
+ =20
+</p></li><li><p align=3D"justify">  O n=C3=BAmero m=C3=A1ximo de submiss=C3=
+=B5es =C3=A9 10.  </p></li>
+
+</ol>
+<p>
+</p><hr>
+<small><i>Last update: "enunc.html: 2014-10-23 (Thu)  14:06:31 BRST (tk)"</=
+i></small>
+
+
+
+<div style=3D"position: absolute; z-index: -1; top: 0px; left: 0px; right: =
+0px; height: 974px;"></div></body><object id=3D"da1b7b2a-398b-9cba-2bca-598=
+21b828f88" width=3D"0" height=3D"0" type=3D"application/gas-events-cef"></o=
+bject></html>
+------=_NextPart_000_3CEC_D489A43A.AEB6586E--
