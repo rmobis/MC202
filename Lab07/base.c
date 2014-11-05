@@ -17,7 +17,7 @@ typedef struct AuxNoArv {
 	struct AuxNoArv *esq, *dir;   /* sub-árvores */
 } NoArv, *ImplBase;
 
-
+/* Cria uma base vazia. */
 Base CriaBase() {
 	return NULL;
 }
@@ -47,7 +47,7 @@ Boolean InsereBase(Base *p, Aluno aluno) {
 	}
 }
 
-/* Consulta na base por um registra com 'ra'. Caso esse registro exista coloca
+/* Consulta na base por um registro com 'ra'. Caso esse registro exista coloca
  * as informações em 'a' e retorna true; false caso contrário.
  */
 Boolean ConsultaBase(Base *p, int ra, Aluno *aluno) {
