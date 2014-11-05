@@ -1,0 +1,153 @@
+From: <Saved by WebKit>
+Subject: Laboratorio 07
+Date: Thu, 5 Nov 2014 22:07:17 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_860B_0E1FC2D8.AD7D816D"
+
+------=_NextPart_000_860B_0E1FC2D8.AD7D816D
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://susy.ic.unicamp.br:9999/mc202ef/07/enunc.html
+
+<html data-ember-extension=3D"1"><head><meta charset=3D"UTF-8">
+
+    <title>Laboratorio 07</title>
+<style type=3D"text/css"></style></head>
+<body bgcolor=3D"#CC9966" text=3D"#000000">
+
+<h3>Instituto de Computa=C3=A7=C3=A3o da UNICAMP</h3>
+
+<h3>Disciplina MC202: Segundo Semestre de 2014</h3>
+
+<h3>Laborat=C3=B3rio N=C2=BA 07</h3>
+
+<i>Prof.</i> <i>Tomasz Kowaltowski (Turmas E e F)</i>
+<p>
+</p><hr>
+<p>
+
+</p><p align=3D"JUSTIFY"> O objetivo deste laborat=C3=B3rio =C3=A9 a implem=
+enta=C3=A7=C3=A3o e
+ teste de uma pequena base de dados que conter=C3=A1 registros referentes a
+ alunos da UNICAMP.  As informa=C3=A7=C3=B5es correspondentes a cada aluno =
+ser=C3=A3o
+ o RA e o nome, sendo que o RA constituir=C3=A1 a chave para as opera=C3=A7=
+=C3=B5es
+ de manipula=C3=A7=C3=A3o da base de dados.
+
+</p><p align=3D"justify">
+Esta base de dados ser=C3=A1 implementada atrav=C3=A9s de uma <b><i>=C3=A1r=
+vore
+bin=C3=A1ria de busca</i></b>, sem nenhuma otimiza=C3=A7=C3=A3o. A implemen=
+ta=C3=A7=C3=A3o
+seguir=C3=A1 a id=C3=A9ia de um tipo abstrato de dados realizado atrav=C3=
+=A9s de um
+par de arquivos <tt>base.h</tt> e <tt>base.c</tt> e testado por um
+programa <tt>principal.c</tt>. O programa principal aceita os
+seguintes comandos:
+
+</p><blockquote>=20
+<table>=20
+<tbody><tr>=20
+<td><b>i &nbsp; <i>ra</i> &nbsp; <i>nome</i>&nbsp;</b> </td>
+    <td> insere novo registro com <i>ra</i> e <i>nome</i> na base;</td>
+</tr>
+
+<tr>=20
+<td><b>c &nbsp; <i>ra</i> &nbsp;</b> </td>
+    <td> consulta registro com <i>ra</i> na base;</td>
+</tr>
+
+<tr>=20
+<td><b>r &nbsp; <i>ra</i> &nbsp;</b> </td>
+    <td> remove registro com <i>ra</i> da base;</td>
+</tr>
+
+<tr>=20
+<td><b>l &nbsp;</b> </td>
+    <td> libera espa=C3=A7o ocupado pela base;</td>
+</tr>
+
+<tr>=20
+<td><b>n &nbsp;</b> </td>
+    <td> imprime o n=C3=BAmero de elementos na base;</td>
+</tr>
+
+<tr>=20
+<td><b>a &nbsp;</b> </td>
+    <td> imprime a altura da base (=C3=A1rvore bin=C3=A1ria);</td>
+</tr>
+
+<tr>=20
+<td><b>p &nbsp; </b></td>
+    <td> executa um percurso inordem na base, imprimindo os elementos;</td>
+</tr>
+
+<tr>=20
+<td><b>h</b> </td><td>  imprime resumo dos comandos;</td>
+</tr>
+
+<tr>=20
+<td><b>x</b> ou <b>q</b> </td><td>  encerra interpreta=C3=A7=C3=A3o;</td>
+</tr>
+
+<tr>=20
+<td><b>#</b> </td><td>  linha de coment=C3=A1rio.</td>
+</tr>
+
+</tbody></table>
+</blockquote>
+
+<p>
+<b>Observa=C3=A7=C3=B5es:</b>
+</p><ol>
+
+<li> <p align=3D"JUSTIFY">Um  <b>RA</b> sempre ser=C3=A1 <b>representado po=
+r
+um n=C3=BAmero inteiro</b> e <b>n=C3=A3o</b> =C3=A9 precedido das letras <t=
+t>ra</tt>
+(veja exemplos nos testes).
+=20
+</p></li><li> <p align=3D"JUSTIFY">A representa=C3=A7=C3=A3o da base como u=
+ma <i>=C3=A1rvore bin=C3=A1ria</i> est=C3=A1
+escondida do usu=C3=A1rio que deve enxerg=C3=A1-la apenas como um <i>tipo
+abstrato de dados</i>. Note no arquivo <tt>base.h</tt> que isso =C3=A9
+feito em <i>C</i> definindo o tipo <tt>Base</tt> como um apontador do
+tipo <tt>void</tt>.  A declara=C3=A7=C3=A3o do tipo <i>=C3=A1rvore bin=C3=
+=A1ria</i> ficar=C3=A1
+escondida no arquivo <tt>base.c</tt> onde as convers=C3=B5es de tipo
+apropriadas (<i>casting</i>) dever=C3=A3o ser efetuadas.
+
+</p></li><li><p align=3D"JUSTIFY">Para as opera=C3=A7=C3=B5es de inser=C3=
+=A7=C3=A3o e remo=C3=A7=C3=A3o da base de dados =C3=A9
+importante que sejam seguidas as id=C3=A9ias explicadas na apostila. Para a
+remo=C3=A7=C3=A3o, em caso de ajuste na =C3=A1rvore, dever=C3=A1 ser usado =
+o <b>sucessor</b> no
+percurso em inordem como substituto do n=C3=B3 removido (<b>m=C3=ADnimo</b>=
+ da
+sub=C3=A1rvore direita).
+
+ </p></li><li> <p align=3D"JUSTIFY">Devem ser utilizadas as macros <i>MALLO=
+C</i>
+e <i>FREE</i> fornecidas com o pacote <i>balloc</i>. A sua
+implementa=C3=A7=C3=A3o n=C3=A3o pode utilizar as opera=C3=A7=C3=B5es habit=
+uais de
+aloca=C3=A7=C3=A3o.
+
+</p></li><li> O n=C3=BAmero m=C3=A1ximo de submiss=C3=B5es =C3=A9 10.  </li=
+>
+
+</ol>
+<p>
+</p><hr>
+
+<small><i>Last update: "enunc.html: 2014-10-14 (Tue)  16:40:40 BRT (tk)"</i=
+></small>
+
+
+
+</body><object id=3D"e968698a-aad8-a382-5b08-8b840a9790a0" width=3D"0" heig=
+ht=3D"0" type=3D"application/gas-events-cef"></object></html>
+------=_NextPart_000_860B_0E1FC2D8.AD7D816D--

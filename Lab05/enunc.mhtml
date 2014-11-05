@@ -1,0 +1,193 @@
+From: <Saved by WebKit>
+Subject: Laboratorio 05
+Date: Thu, 5 Nov 2014 22:07:53 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_BDD7_6D449634.8FC42F7A"
+
+------=_NextPart_000_BDD7_6D449634.8FC42F7A
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://susy.ic.unicamp.br:9999/mc202ef/05/enunc.html
+
+<html data-ember-extension=3D"1"><head><meta charset=3D"UTF-8">
+
+    <title>Laboratorio 05</title>
+<style type=3D"text/css"></style></head>
+<body bgcolor=3D"#CC9966" text=3D"#000000">
+
+<h3>Instituto de Computa=C3=A7=C3=A3o da UNICAMP</h3>
+
+<h3>Disciplina MC202: Segundo Semestre de 2014</h3>
+
+<h3>Laborat=C3=B3rio N=C2=BA 05</h3>
+
+<i>Prof.</i> <i>Tomasz Kowaltowski (Turmas E e F)</i>
+<p>
+</p><hr>
+<p>
+
+</p><p align=3D"JUSTIFY"> O objetivo desta tarefa =C3=A9 escrever um analis=
+ador
+sint=C3=A1tico que transforma express=C3=B5es da nota=C3=A7=C3=A3o infixa p=
+ara a nota=C3=A7=C3=A3o
+p=C3=B3s-fixa utilizando recurs=C3=A3o, estendendo as fun=C3=A7=C3=B5es des=
+critas na se=C3=A7=C3=A3o
+5.3 da apostila e explicadas em aula. Nestas express=C3=B5es, os operandos
+s=C3=A3o representados por letras min=C3=BAsculas e os operadores di=C3=A1d=
+icos (ou
+bin=C3=A1rios, de dois argumentos) v=C3=A1lidos s=C3=A3o <tt>+</tt>, <tt>-<=
+/tt>,
+<tt>*</tt>, <tt>/</tt> e <tt>^</tt>.  A fim de evitar ambiguidade, os
+operadores mon=C3=A1dicos (un=C3=A1rios) <tt>+</tt> e <tt>-</tt> da nota=C3=
+=A7=C3=A3o
+infixa s=C3=A3o representados, respectivamente, por <tt>&amp;</tt> e <tt>~<=
+/tt>
+na nota=C3=A7=C3=A3o p=C3=B3s-fixa. As express=C3=B5es na forma infixa pode=
+m conter
+par=C3=AAnteses. A tabela abaixo mostra alguns exemplos de transforma=C3=A7=
+=C3=B5es.
+
+</p><p>
+
+</p><center>
+<table style=3D"width: 50%; text-align: left;" border=3D"1" cellpadding=3D"=
+2" cellspacing=3D"2">
+<tbody>
+<tr>
+<td style=3D"vertical-align: top; text-align: center;"><b>Infixa</b><br>
+</td>
+<td style=3D"vertical-align: top; text-align: center;"><b>P=C3=B3s-fixa</b>=
+<br>
+</td>
+</tr>
+<tr>
+<td><tt>a+b</tt></td>
+
+<td><tt>ab+</tt></td>
+
+</tr>
+<tr>
+<td><tt>-a+b</tt></td>
+
+<td><tt>a~b+</tt></td>
+
+</tr>
+<tr>
+<td><tt>+a-(-b)</tt></td>
+
+<td><tt>a&amp;b~-</tt></td>
+
+</tr>
+<tr>
+<td><tt>a+b-c</tt></td>
+
+<td><tt>ab+c-</tt></td>
+
+</tr>
+<tr>
+<td><tt>a^b^c</tt></td>
+
+<td><tt>abc^^</tt></td>
+
+</tr>
+<tr>
+<td><tt>a-b*c+d+e/f*g-h</tt></td>
+
+<td><tt>abc*-d+ef/g*+h-</tt></td>
+
+</tr>
+<tr>
+<td><tt>((a-b)*(c-d)/e)</tt></td>
+
+<td><tt>ab-cd-*e/</tt></td>
+
+</tr>
+</tbody>
+</table>
+</center>
+
+<p align=3D"JUSTIFY"> O programa principal recebe como entrada uma s=C3=A9r=
+ie
+de express=C3=B5es na forma infixa, uma por linha. Linhas de coment=C3=A1ri=
+o
+devem ser precedidas por <tt>#</tt> na primeira posi=C3=A7=C3=A3o.
+
+</p><h3>Tratamento de erros</h3>
+
+Eventualmente, uma express=C3=A3o na entrada pode estar incorreta. Voc=C3=
+=AA
+dever=C3=A1 indicar a posi=C3=A7=C3=A3o e o c=C3=B3digo do erro, como defin=
+ido no arquivo
+<tt>analisador.h</tt>. O programa principal escrever=C3=A1 a mensagem de er=
+ro
+na sa=C3=ADda padr=C3=A3o. Veja alguns exemplos:
+
+<blockquote>
+<pre>Infixa: a--b
+Erro:     ^
+        Operando esperado nesta posi=C3=A7=C3=A3o.
+
+Infixa: ab
+Erro:    ^
+        Operador esperado nesta posi=C3=A7=C3=A3o.
+
+Infixa: (a-b
+Erro:       ^
+        Fecha par=C3=AAntese esperado nesta posi=C3=A7=C3=A3o.
+
+Infixa: a%c
+Erro:    ^
+        Caractere inv=C3=A1lido nesta posi=C3=A7=C3=A3o.
+</pre>
+</blockquote>
+
+<h3>Observa=C3=A7=C3=B5es:</h3>
+
+<ol>
+
+<li> <p align=3D"JUSTIFY"> =C3=89 obrigat=C3=B3rio o uso da recurs=C3=A3o.
+
+</p></li><li> <p align=3D"JUSTIFY"> A cadeia de entrada pode conter caracte=
+res em
+branco.=20
+
+</p></li><li> <p align=3D"JUSTIFY">O pacote <i>tudo.zip</i> cont=C3=A9m tod=
+os os
+testes abertos e seus resultados, bem como os arquivos
+<i>principal.c</i>, <i>analisador.h</i> e <i>analisador.c</i>; este
+  =C3=BAltimo deve ser completado.
+
+</p></li><li> <p align=3D"JUSTIFY"> Deve ser submetido apenas o arquivo
+<tt>analisador.c</tt>.=20
+
+</p></li><li> <p align=3D"JUSTIFY"> N=C3=A3o =C3=A9 permitido alterar o arq=
+uivo=20
+de interface <tt>analisador.h</tt>.=20
+
+</p></li><li> <p align=3D"JUSTIFY"> Esta tarefa n=C3=A3o deve alocar mem=C3=
+=B3ria din=C3=A2mica
+(<i>malloc</i> ou <i>MALLOC</i>).
+
+</p></li><li> <p align=3D"JUSTIFY"> O n=C3=BAmero m=C3=A1ximo de submiss=C3=
+=B5es =C3=A9 10.
+
+ </p></li></ol>
+
+
+<p>
+</p><hr>
+
+<small><i>Last update: "enunc.html: 2014-09-27 (Sat)  14:03:04 BRT (tk)"</i=
+></small>
+
+
+=20
+
+
+<div style=3D"position: absolute; z-index: -1; top: 0px; left: 0px; right: =
+0px; height: 1127px;"></div></body><object id=3D"f89bcb4b-2b2a-bf9e-fb28-e9=
+8509828a86" width=3D"0" height=3D"0" type=3D"application/gas-events-cef"></=
+object></html>
+------=_NextPart_000_BDD7_6D449634.8FC42F7A--
