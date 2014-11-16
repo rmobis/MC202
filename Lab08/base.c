@@ -22,6 +22,9 @@ typedef struct AuxNoArv {
 
 /* Protótipos das funções auxiliares */
 Boolean AuxInsereBase(ImplBase *p, Aluno aluno, Boolean *altDif);
+Boolean AuxRemoveBase(ImplBase *pB, int ra, Boolean *altDif);
+void AuxCorrigeBalanceamentoEsq(ImplBase *pB, Boolean *altDif, Boolean insercao);
+void AuxCorrigeBalanceamentoDir(ImplBase *pB, Boolean *altDif, Boolean insercao);
 void AuxRotacionaEsq(ImplBase *b);
 void AuxRotacionaDir(ImplBase *b);
 
@@ -139,57 +142,13 @@ Boolean AuxInsereBase(ImplBase *pB, Aluno aluno, Boolean *altDif) {
 	if (aluno.ra != b->info.ra) {
 		if (aluno.ra < b->info.ra) {
 			if (AuxInsereBase(&b->esq, aluno, altDif)) {
-				if (*altDif) {
-					if (b->bal == -1) {
-						/* Caso tenhamos que fazer um caso Left-Right, primeiro
-						 * fazemos uma rotação para a esquerda, transformando-o
-						 * em um caso Left-Left.
-						 */
-						if (b->esq->bal == 1) {
-							AuxRotacionaEsq(&b->esq);
-						}
-
-						AuxRotacionaDir(pB);
-
-						*altDif = false;
-					} else {
-						/* Se tinhamos uma árvore com fator de balanceamento 0,
-						 * acabamos de aumentar sua altura.
-						 */
-						*altDif = (b->bal == 0);
-
-						/* Corrige o fator de balanceamento */
-						b->bal--;
-					}
-				}
+				AuxCorrigeBalanceamentoDir(pB, altDif, false);
 
 				return true;
 			}
 		} else if (aluno.ra > b->info.ra) {
 			if (AuxInsereBase(&b->dir, aluno, altDif)) {
-				if (*altDif) {
-					if (b->bal == 1) {
-						/* Caso tenhamos que fazer um caso Right-Left, primeiro
-						 * fazemos uma rotação para a direita, transformando-o
-						 * em um caso Right-Right.
-						 */
-						if (b->dir->bal == -1) {
-							AuxRotacionaDir(&b->dir);
-						}
-
-						AuxRotacionaEsq(pB);
-
-						*altDif = false;
-					} else {
-						/* Se tinhamos uma árvore com fator de balanceamento 0,
-						 * acabamos de aumentar sua altura.
-						 */
-						*altDif = (b->bal == 0);
-
-						/* Corrige o fator de balanceamento */
-						b->bal++;
-					}
-				}
+				AuxCorrigeBalanceamentoEsq(pB, altDif, false);
 
 				return true;
 			}
@@ -199,9 +158,124 @@ Boolean AuxInsereBase(ImplBase *pB, Aluno aluno, Boolean *altDif) {
 	return false;
 }
 
-/* NÃO IMPLEMENTADA */
+/* Tenta remover um registro com 'ra'. Caso a remoção tenha sido bem sucedida,
+ * retorna true; false caso contrário.
+ */
 Boolean RemoveBase(Base *p, int ra) {
+	Boolean altDif;
+
+	return AuxRemoveBase((ImplBase*) p, ra, &altDif);
+}
+
+/* Tenta remover um registro com 'ra'. Caso a remoção tenha sido bem sucedida,
+ * retorna true; false caso contrário.
+ */
+Boolean AuxRemoveBase(ImplBase *pB, int ra, Boolean *altDif) {
+	if (*pB == NULL) {
+		return false;
+	}
+
+	ImplBase b = *pB;
+
+	/* Remoção recursiva */
+	if (ra < b->info.ra) {
+		if (AuxRemoveBase(&b->esq, ra, altDif)) {
+			AuxCorrigeBalanceamentoEsq(pB, altDif, true);
+
+			return true;
+		}
+	} else if (ra > b->info.ra) {
+		if (AuxRemoveBase(&b->dir, ra, altDif)) {
+			AuxCorrigeBalanceamentoDir(pB, altDif, true);
+
+			return true;
+		}
+	} else {
+		/* Se uma das sub-árvores é NULA, basta substituir o elemento pela outra
+		 * sub-árvore, não necessariamente não vazia.
+		 */
+		if (b->esq == NULL || b->dir == NULL) {
+			*pB = b->esq != NULL ? b->esq : b->dir;
+			FREE(b->info.nome);
+			FREE(b);
+
+			*altDif = true;
+		} else {
+			Aluno tmpAluno = b->info;
+
+			/* Pega o elemento seguinte ao que queremos remover; ou seja, o
+			 * mínimo da sub-árvore direita.
+			 */
+			ImplBase *pBPai = pB;
+			ImplBase *pBD = &b->dir;
+			while ((*pBD)->esq != NULL) {
+				pBPai = pBD;
+				pBD = &(*pBD)->esq;
+			}
+
+			/* Troca os alunos nos elementos */
+			((ImplBase) *pB)->info = (*pBD)->info;
+			(*pBD)->info = tmpAluno;
+
+			/* Agora remove o aluno, que está numa folha */
+			AuxRemoveBase(pBD, ra, altDif);
+			AuxCorrigeBalanceamentoEsq(pBPai, altDif, true);
+		}
+
+		return true;
+	}
+
 	return false;
+}
+
+/* Corrige o balanceamento da árvore, fazendo as rotações necessárias. */
+void AuxCorrigeBalanceamentoEsq(ImplBase *pB, Boolean *altDif, Boolean remocao) {
+	if (*altDif) {
+		if ((*pB)->bal == 1) {
+			/* Caso tenhamos que fazer um caso Right-Left, primeiro
+			 * fazemos uma rotação para a direita, transformando-o
+			 * em um caso Right-Right.
+			 */
+			if ((*pB)->dir->bal == -1) {
+				AuxRotacionaDir(&(*pB)->dir);
+			}
+
+			AuxRotacionaEsq(pB);
+
+			*altDif = false;
+		} else {
+			/* Verificamos se alteramos a altura da arvore. */
+			*altDif = ((*pB)->bal == -((int) remocao));
+
+			/* Corrige o fator de balanceamento */
+			(*pB)->bal++;
+		}
+	}
+}
+
+/* Corrige o balanceamento da árvore, fazendo as rotações necessárias. */
+void AuxCorrigeBalanceamentoDir(ImplBase *pB, Boolean *altDif, Boolean remocao) {
+	if (*altDif) {
+		if ((*pB)->bal == -1) {
+			/* Caso tenhamos que fazer um caso Left-Right, primeiro
+			 * fazemos uma rotação para a esquerda, transformando-o
+			 * em um caso Left-Left.
+			 */
+			if ((*pB)->esq->bal == 1) {
+				AuxRotacionaEsq(&(*pB)->esq);
+			}
+
+			AuxRotacionaDir(pB);
+
+			*altDif = false;
+		} else {
+			/* Verificamos se alteramos a altura da arvore. */
+			*altDif = ((*pB)->bal == ((int) remocao));
+
+			/* Corrige o fator de balanceamento */
+			(*pB)->bal--;
+		}
+	}
 }
 
 /* Realiza a rotação para a esquerda entre um nó e seu filho. */
