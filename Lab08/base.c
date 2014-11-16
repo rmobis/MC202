@@ -204,6 +204,7 @@ Boolean RemoveBase(Base *p, int ra) {
 	return false;
 }
 
+/* Realiza a rotação para a esquerda entre um nó e seu filho. */
 void AuxRotacionaEsq(ImplBase *b) {
 	ImplBase tmpBase = *b;
 
@@ -215,6 +216,7 @@ void AuxRotacionaEsq(ImplBase *b) {
 	tmpBase->bal = FatorBal((Base *) &tmpBase);
 }
 
+/* Realiza a rotação para a direita entre um nó e seu filho. */
 void AuxRotacionaDir(ImplBase *b) {
 	ImplBase tmpBase = *b;
 
