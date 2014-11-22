@@ -1,109 +1,180 @@
-/*
-  Implementação das funções de manipulação de filas de prioridade
-  (FP). Vide o arquivo heap.h com as especificações.
- */  
+/**
+ * Programa: heap.c
+ * Autor: Raphael Mobis Tacla   RA: 157104
+ * Disciplina: MC202            Turma: F
+ * Data: 22/11/2014
+ *
+ * Módulo de implementação das funções de manipulação de filas de prioridade (FP).
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "heap.h"
 #include "balloc.h"
 
 typedef struct {
-  int tamMax;
-  int tam;
-  funcCompara *comp;/* função de comparação */
-  void *vetor[1];   /* tamanho alocado será 'tamMax' */
+	int tamMax;
+	int tam;
+
+	/* Função de Comparação */
+	funcCompara *comp;
+
+	/* Tamanho real do vertor será 'tamMax' */
+	void *vetor[1];
 } RegHeap, *ImplHeap;
 
 
-/* Funções auxiliares para manipulação de FPs. */
-void Sobe(ImplHeap h, int m) {
+/******************************************************************************
+ *                 Funções auxiliares para manipulação de FPs                 *
+ ******************************************************************************/
 
-  /* COMPLETAR */
-  
-} /* Sobe */
+/* Sobe de maneira recursiva um elemento, possívelmente em desacordo com as
+ * especificações do heap, até que todo o heap esteja corretamento ordenado.
+ */
+void Sobe(ImplHeap iH, int i) {
+	if (i == 0) {
+		return;
+	}
 
-void Desce(ImplHeap h, int m) {
+	int j = (i - 1) / 2;
 
-  /* COMPLETAR */
-  
-} /* Desce */
+	void *filho = Elemento((Heap) iH, i);
+	void *pai   = Elemento((Heap) iH, j);
+
+	if (iH->comp(filho, pai) > 0) {
+		iH->vetor[j] = filho;
+		iH->vetor[i] = pai;
+
+		Sobe(iH, j);
+	}
+}
+
+/* Desce de maneira recursiva um elemento, possívelmente em desacordo com as
+ * especificações do heap, até que todo o heap esteja corretamento ordenado.
+ */
+void Desce(ImplHeap iH, int i) {
+	if (i >= iH->tam) {
+		return;
+	}
+
+	int j = (i * 2) + 1;
+
+	void *pai      = Elemento((Heap) iH, i);
+	void *filho    = Elemento((Heap) iH, j);
+	void *filhoDir = Elemento((Heap) iH, j + 1);
+
+	if (filho != NULL) {
+		/* Trocamos sempre com o maior filho */
+		if (filhoDir != NULL) {
+			if (iH->comp(filhoDir, filho) > 0) {
+				filho = filhoDir;
+				j++;
+			}
+		}
+
+		if (iH->comp(filho, pai) > 0) {
+			iH->vetor[i] = filho;
+			iH->vetor[j] = pai;
+
+			Desce(iH, j);
+		}
+	}
+}
 
 
-Heap CriaHeapAux(int n, funcCompara *comp, void *elems[]) {
-  /* Cria um heap vazio; se 'elems' não é nulo, preenche com os
-     valores do vetor 'elems' e transforma num heap.
-  */
-  ImplHeap ih = MALLOC(sizeof(RegHeap)+(n-1)*sizeof(void *));
+/******************************************************************************
+ *                  Implementação da Fila de Prioridade (FP)                  *
+ ******************************************************************************/
 
-  /* COMPLETAR */
-  
-  return ih;
-  
-} /* CriaHeapAux */
+/* Cria um heap vazio. */
+Heap CriaHeap(int tamMax, funcCompara *comp) {
+	/* Pequena hackeragem para podermos determinar o tamanho do heap de maneira
+	 * dinâmica, mas ainda acessá-lo através de um vetor.
+	 */
+	ImplHeap iH = MALLOC(sizeof(RegHeap) + ((tamMax - 1)*sizeof(void*)));
 
-Heap CriaHeap(int n, funcCompara *comp) {
+	iH->tamMax = tamMax;
+	iH->tam    = 0;
+	iH->comp   = comp;
 
-  return CriaHeapAux(n,comp,NULL);
+	return iH;
+}
 
-} /* CriaHeap */
+/* Cria um heap vazio e o preenche com os valores de 'elems', fazendo as devidas
+ * alterações para que a ordem dos elementos obedeça àquela estabelecida para um
+ * heap.
+ */
+Heap CriaInicializaHeap(int tamMax, funcCompara *comp, void *elems[]) {
+	ImplHeap iH = (ImplHeap) CriaHeap(tamMax, comp);
 
-Heap CriaInicializaHeap(int n, funcCompara *comp, void *elems[]) {
+	/* Copia os elementos */
+	memcpy(iH->vetor, elems, iH->tamMax * sizeof(void*));
+	iH->tam = iH->tamMax;
 
-  return CriaHeapAux(n,comp,elems);
+	/* "Ordena" os elementos */
+	int i;
+	for (i = (iH->tam - 2) / 2; i >= 0; i--) {
+		Desce(iH, i);
+	}
 
-} /* CriaInicializaHeap */
+	return iH;
+}
 
+/* Retorna o tamanho do heap. */
 int TamanhoHeap(Heap h) {
+	return ((ImplHeap) h)->tam;
+}
 
-  /* COMPLETAR */
-  
-  return 0; /* provisório */
-  
-} /* TamanhoHeap */
+/* Insere um novo elemento no heap. */
+void InsereHeap(Heap h, void *el) {
+	ImplHeap iH = (ImplHeap) h;
 
+	if (iH->tam == iH->tamMax) {
+		printf("Estouro da FP\n");
+		exit(0);
+	}
 
-void InsereHeap(Heap h, void *e) {
+	/* Insere no final do heap */
+	iH->vetor[(iH->tam)++] = el;
 
-  ImplHeap ih = h;
-  if (ih->tam==ih->tamMax) {
-    printf("Estouro da FP\n");
-    exit(0);
-  }
+	/* Sobe o elemento até sua posição adequada */
+	Sobe(iH, iH->tam - 1);
+}
 
-  /* COMPLETAR */
- 
-} /* insereHeap */
+/* Remove o primeiro elemento do heap e retorna um ponteiro para este. */
+void* RemoveHeap(Heap h) {
+	ImplHeap iH = h;
 
+	if (iH->tam == 0) {
+		printf("FP vazia\n");
+		exit(0);
+	}
 
-void * RemoveHeap(Heap h) {
+	void* ret = Elemento(iH, 0);
 
-  ImplHeap ih = h;
-  void *ret = NULL;
-  if (ih->tam==0) {
-    printf("FP vazia\n");
-    exit(0);
-  }
+	/* Substitui a raiz com o último elemento */
+	iH->vetor[0] = Elemento(iH, iH->tam - 1);
+	(iH->tam)--;
 
-  /* COMPLETAR */
+	/* Desce o elemento até sua posição adequada */
+	Desce(iH, 0);
 
-  return ret;
-  
-} /* removeHeap */
+	return ret;
+}
 
+/* Libera toda a memória alocada para o heap. */
 void LiberaHeap(Heap h) {
+	FREE(h);
+}
 
-  /* COMPLETAR */
+/* Retorna um ponteiro para o 'i'-ésimo elemento do heap. */
+void* Elemento(Heap h, int i) {
+	ImplHeap iH = (ImplHeap) h;
 
-} /* liberaHeap */
+	if (i < 0 || i >= iH->tam) {
+		return NULL;
+	}
 
-
-void * Elemento(Heap h, int k) {
-
-  ImplHeap ih = h;
-  
-  if ((k<0) || (k>=ih->tam))
-    return NULL;
-  return ih->vetor[k];
-
-} /* Elemento */
+	return iH->vetor[i];
+}
