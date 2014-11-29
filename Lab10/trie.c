@@ -60,8 +60,49 @@ int letraIndice(char l) {
 	return l - 97;
 }
 
-/* NÃO IMPLEMENTADA */
-Boolean livre(ImplTrie t) {
+/* Retorna se um nó pode ser removido, após a remoção de uma cadeia. */
+Boolean noLivre(ImplTrie iT) {
+	return !iT->fim && numNosAD(iT) == 1;
+}
+
+/* Remove uma dada cadeira de caracteres 's' da árvore digital 't'. Caso esta
+ * tenha sido corretamento removida, devolve 'true'; 'false' caso contrário.
+ * 's' pode ser uma cadeia vazia.
+ */
+Boolean removeAux(ImplTrie iT, char *s, Boolean *removido) {
+	if (iT == NULL) {
+		return false;
+	}
+
+	/* Chegamos ao fim da cadeia */
+	if (*s == '\0') {
+		iT->fim = false;
+
+		/* Removemos o nó, caso ele esteja livre */
+		*removido = noLivre(iT);
+		if (*removido) {
+			liberaAD(iT);
+		}
+
+		return true;
+	}
+
+	int i = letraIndice(*s);
+	if (removeAux(iT->subarv[i], s + 1, removido)) {
+		if (*removido) {
+			/* Se removemos um filho, atualizamos o pai de acordo */
+			iT->subarv[i] = NULL;
+
+			/* Removemos o nó, caso ele esteja livre */
+			*removido = noLivre(iT);
+			if (*removido) {
+				liberaAD(iT);
+			}
+		}
+
+		return true;
+	}
+
 	return false;
 }
 
@@ -153,9 +194,25 @@ int numCadeiasAD(Trie t) {
 	return n;
 }
 
-/* NÃO IMPLEMENTADA */
+/* Remove uma dada cadeira de caracteres 's' da árvore digital 't'. Caso esta
+ * tenha sido corretamento removida, devolve 'true'; 'false' caso contrário.
+ * 's' pode ser uma cadeia vazia.
+ */
 Boolean removeAD(Trie t, char *s) {
-	return false;
+	Boolean removido;
+	ImplTrie iT = (ImplTrie) t;
+
+	/* Temporariamente definimos a raiz como o final de uma cadeia, para que ela
+	 * não seja removida durante o processo.
+	 */
+	iT->fim = true;
+
+	removido = removeAux(iT, s, &removido);
+
+	/* Retornamos a raiz ao seu estado original */
+	iT->fim = false;
+
+	return removido;
 }
 
 /* NÃO IMPLEMENTADA */
