@@ -60,12 +60,19 @@ int letraIndice(char l) {
 	return l - 97;
 }
 
+/* Retorna a letra que representa a posição 'i' no vetor de sub-árvores. Assume
+ * 0 <= 'i' < TAM_ALFABETO.
+ */
+int indiceLetra(char i) {
+	return i + 97;
+}
+
 /* Retorna se um nó pode ser removido, após a remoção de uma cadeia. */
 Boolean noLivre(ImplTrie iT) {
 	return !iT->fim && numNosAD(iT) == 1;
 }
 
-/* Remove uma dada cadeira de caracteres 's' da árvore digital 't'. Caso esta
+/* Remove uma dada cadeira de caracteres 's' da árvore digital 'iT'. Caso esta
  * tenha sido corretamento removida, devolve 'true'; 'false' caso contrário.
  * 's' pode ser uma cadeia vazia.
  */
@@ -106,9 +113,26 @@ Boolean removeAux(ImplTrie iT, char *s, Boolean *removido) {
 	return false;
 }
 
-/* NÃO IMPLEMENTADA */
-void percorreAux(ImplTrie t, funcVisita *v, char *buf, int m) {
-	return;
+/* Percorre, em ordem alfabética, todas as cadeias contidas na árvore digital
+ * 'iT', aplicando a cada uma a função 'visita'.
+ */
+void percorreAux(ImplTrie iT, funcVisita *visita, char *buffer, int n) {
+	if (iT == NULL) {
+		return;
+	}
+
+	/* Se for o fim de uma cadeia, visita esta */
+	if (iT->fim) {
+		buffer[n] = '\0';
+		visita(buffer);
+	}
+
+	int i;
+	/* Para cada nó, repetimos o processo recursivamente */
+	for (i = 0; i < TAM_ALFABETO; i++) {
+		buffer[n] = indiceLetra(i);
+		percorreAux(iT->subarv[i], visita, buffer, n + 1);
+	}
 }
 
 
@@ -215,9 +239,14 @@ Boolean removeAD(Trie t, char *s) {
 	return removido;
 }
 
-/* NÃO IMPLEMENTADA */
-void percorreAD(Trie t, funcVisita *v) {
-	return;
+/* Percorre, em ordem alfabética, todas as cadeias contidas na árvore digital
+ * 'iT', aplicando a cada uma a função 'visita'.
+ */
+void percorreAD(Trie t, funcVisita *visita) {
+	char buffer[TAM_MAX_CADEIA];
+	ImplTrie iT = (ImplTrie) t;
+
+	percorreAux(iT, visita, buffer, 0);
 }
 
 /* Libera toda a memória alocada para a árvore digital. */
@@ -279,5 +308,3 @@ int alturaAD(Trie t) {
 
 	return n + 1;
 }
-
-
