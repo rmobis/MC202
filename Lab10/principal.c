@@ -70,7 +70,7 @@ void visita(char *s) {
 
 int main() {
 
-  Trie trie;
+  Trie trie = NULL;
   Boolean fim = false;
   char *cadeia;
   char acao;
