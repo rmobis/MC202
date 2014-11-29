@@ -1,23 +1,15 @@
-/*
-  Autor:         COMPLETAR!
-  RA:            COMPLETAR!
-  Disciplina:    MC202
-  Turmas:        E e F
-  
-  Tarefa 10
-  Segundo semestre de 2014
-
-*/
-/* Arquivo trie.c:
-
-   Implementação de árvores digitais (ADs) através de um tipo
-   abstrato de dados usando apontadores "void *".
-
-   Todas as definições estão no arquivo "trie.h".
-
-*/
+/**
+ * Programa: trie.c
+ * Autor: Raphael Mobis Tacla   RA: 157104
+ * Disciplina: MC202            Turma: F
+ * Data: 29/11/2014
+ *
+ * Módulo de implementação das funções de manipulação de árvores digitais (ADs)
+ * através de um tipo abstrato de dados.
+ */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "trie.h"
 #include "balloc.h"
@@ -25,140 +17,210 @@
 typedef struct RegTrie * ImplTrie;
 
 typedef struct RegTrie {
-  Boolean fim;                 /* término de uma cadeia */
-  ImplTrie subarv[TAM_ALFABETO]; /* vetor de subárvores */
+	Boolean fim;                   // término de uma cadeia
+	ImplTrie subarv[TAM_ALFABETO]; // vetor de subárvores
 } RegTrie;
 
 
 
-/* ------------------------------------------------------------ */
-/*          Sugestões de algumas funções auxiliares             */
-/* ------------------------------------------------------------ */
+/******************************************************************************
+ *                 Funções auxiliares para manipulação de ADs                 *
+ ******************************************************************************/
 
+/* Devolve o máximo entre dois valores inteiros. Poderiamos ter usado o macro
+ * 'max' mas, por ser um macro, ele acabaria por executar parte do código duas
+ * vezes, diminuindo a performance do programa.
+ */
+int _max(int a, int b) {
+	if (a >= b) {
+		return a;
+	} else {
+		return b;
+	}
+}
+
+/* Cria e inicializa um nó, setando a marca de final de cadeia e preenchendo
+ * o evetor de sub-árcores com NULL.
+ */
 ImplTrie criaInicializaNo() {
-/* Devolve um nó com a marca de fim de cadeia falsa e todas as
-   subárvores vazias; usada para criar a AD inicial e durante a
-   inserção.
-*/
-   
-  ImplTrie p = MALLOC(sizeof(RegTrie));
-  if (p==NULL) {
-    printf("Memória esgotada\n");
-    exit(0);
-  }
-  p->fim = false;
-  for (int k=0; k<TAM_ALFABETO; k++)
-    p->subarv[k] = NULL;
-  return p;
+	ImplTrie n = MALLOC(sizeof(RegTrie));
 
+	n->fim = false;
+
+	/* Preenche o vetor de sub-árvores com NULL */
+	memset(n->subarv, 0, sizeof(n->subarv));
+
+	return n;
 }
 
+/* Retorna o índice em que uma letra 'l' deve ocupar no vetor de sub-árvores.
+ * Assume 'l' uma letra do alfabeto padrão, minúscula.
+ */
+int letraIndice(char l) {
+	return l - 97;
+}
 
+/* NÃO IMPLEMENTADA */
 Boolean livre(ImplTrie t) {
-/* Devolve verdadeiro se o nó 't' não é final e é uma folha; usada
-   durante a remoção.
-*/
-  
-  /* COMPLETAR!! */
-  
-  return false;  /* PROVISÓRIO */
-
+	return false;
 }
 
-
+/* NÃO IMPLEMENTADA */
 void percorreAux(ImplTrie t, funcVisita *v, char *buf, int m) {
-/* Percorre a AD em ordem lexicográfica; constroi as cadeias em 'buf'
-  e aplica a função 'v' quando termina uma cadeia, colocando no fim o
-  caractere '\0'; 'm' é o índice do próximo caractere em 'buf'.
-*/
-
-  /* COMPLETAR!! */
-
+	return;
 }
 
 
-/* ------------------------------------------------------------ */
-/*                      Fim das sugestões                       */
-/* ------------------------------------------------------------ */
+/******************************************************************************
+ *                    Implementação da Árvore Digital (AD)                    *
+ ******************************************************************************/
 
-
+/* Cria uma árvore digital vazia. */
 Trie CriaAD() {
-  
-  return criaInicializaNo();
-  
+	return criaInicializaNo();
 }
 
-
+/* Verifica se uma dada cadeia de caracteres 's' foi inserida na árvore digital
+ * 't'.
+ */
 Boolean consultaAD(Trie t, char *s) {
+	int i;
+	ImplTrie iT = (ImplTrie) t;
 
-  /* COMPLETAR!! */
-  
-  return false;  /* PROVISÓRIO */
+	while (*s != '\0') {
+		i = letraIndice(*s);
+		iT = iT->subarv[i];
 
+		if (iT == NULL) {
+			return false;
+		}
+
+		s++;
+	}
+
+	return iT->fim;
 }
 
-
+/* Insere uma dada cadeira de caracteres 's' na árvore digital 't'. Caso haja
+ * inserção, devolve 'true'; 'false' caso contrário. 's' pode ser uma cadeia
+ * vazia.
+ */
 Boolean insereAD(Trie t, char *s) {
+	int i;
+	ImplTrie iT = (ImplTrie) t;
 
-  /* COMPLETAR!! */
-  
-  return false;  /* PROVISÓRIO */
+	while (*s != '\0') {
+		i = letraIndice(*s);
 
+		/* Criamos os nós faltantes */
+		if (iT->subarv[i] == NULL) {
+			iT->subarv[i] = criaInicializaNo();
+		}
+
+		iT = iT->subarv[i];
+		s++;
+	}
+
+	/* Após percorrer a árvore, fazendo as inserções necessários, chegamos ao
+	 * nó que representa o final da cadeia. Se este ainda não está marcado como
+	 * um final de cadeia, é porque a cadeia ainda não havia sido inserida.
+	 */
+	if (!iT->fim) {
+		iT->fim = true;
+		return true;
+	}
+
+	return false;
 }
 
-  
+/* Devolve o número de cadeias contidas na árvore digital. */
 int numCadeiasAD(Trie t) {
-  
-  /* COMPLETAR!! */
-  
-  return 0;  /* PROVISÓRIO */
+	ImplTrie iT = (ImplTrie) t;
 
+	if (iT == NULL) {
+		return 0;
+	}
+
+	/* O nó representa uma cadeia se estiver marcado como o final de uma */
+	int n = (int) iT->fim;
+
+	int i;
+	/* Somamos com as cadeias em todos os filhos */
+	for (i = 0; i < TAM_ALFABETO; i++) {
+		n += numCadeiasAD(iT->subarv[i]);
+	}
+
+	return n;
 }
 
-
+/* NÃO IMPLEMENTADA */
 Boolean removeAD(Trie t, char *s) {
-
-  /* COMPLETAR!! */
-  
-  return false;  /* PROVISÓRIO */
-
+	return false;
 }
 
-
+/* NÃO IMPLEMENTADA */
 void percorreAD(Trie t, funcVisita *v) {
-  
-  char buf[TAM_MAX_CADEIA];
-  
-  percorreAux((ImplTrie)t,v,buf,0);
-  
+	return;
 }
 
+/* Libera toda a memória alocada para a árvore digital. */
 void liberaAD(Trie t) {
+	ImplTrie iT = (ImplTrie) t;
 
-  /* COMPLETAR!! */
+	if (iT == NULL) {
+		return;
+	}
 
+	int i;
+	/* Liberamos todos os filhos primerio */
+	for (i = 0; i < TAM_ALFABETO; i++) {
+		liberaAD(iT->subarv[i]);
+	}
+
+	FREE(iT);
 }
 
 
-/* 
-  Funções usadas somente para verificação; conceitualmente
-  não fazem parte da implementação.
-*/
-   
+/******************************************************************************
+ *              Funções para verificação da Árvore Digital (AD)               *
+ ******************************************************************************/
+
+/* Devolve o número de nós contidos na árvore digital, contando com a raiz. */
 int numNosAD(Trie t) {
+	ImplTrie iT = (ImplTrie) t;
 
-  /* COMPLETAR!! */
-  
-  return 0;  /* PROVISÓRIO */
+	if (iT == NULL) {
+		return 0;
+	}
 
+	int n = 1;
+
+	int i;
+	/* Somamos com os nós de todos os filhos */
+	for (i = 0; i < TAM_ALFABETO; i++) {
+		n += numNosAD(iT->subarv[i]);
+	}
+
+	return n;
 }
 
+/* Devolve a altura da árvore digital, contando com a raiz. */
 int alturaAD(Trie t) {
+	ImplTrie iT = (ImplTrie) t;
 
-  /* COMPLETAR!! */
-  
-  return 0;  /* PROVISÓRIO */
+	if (iT == NULL) {
+		return 0;
+	}
 
+	int n = 0;
+
+	int i;
+	/* Pegamos o máximo dentre as alturas de todos os filhos */
+	for (i = 0; i < TAM_ALFABETO; i++) {
+		n = _max(n, alturaAD(iT->subarv[i]));
+	}
+
+	return n + 1;
 }
 
 
