@@ -16,7 +16,7 @@
  */
 
 
-/*#include "heap.h"*/  /* descomente se necessário */
+#include "heap.h"
 
 /* Deixe descomentada uma das duas linhas */
 /*#include "bits.h"*/
