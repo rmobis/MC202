@@ -1,27 +1,30 @@
 /*
- * huffman.c - ImplementaÁ„o do algoritmo de Huffman.
+ * huffman.c - Implementa√ß√£o do algoritmo de Huffman.
  */
 
 /*
- * huffman.c - ImplementaÁ„o do algoritmo de Huffman.
- *             Para fazer a implementaÁ„o com bits verdadeiros,
- *             deixe abaixo a inclus„o do arquivo "bits.h"; caso
- *             contr·rio, do arquivo "pseudo_bits.h".
+ * huffman.c - Implementa√ß√£o do algoritmo de Huffman.
+ *             Para fazer a implementa√ß√£o com bits verdadeiros,
+ *             deixe abaixo a inclus√£o do arquivo "bits.h"; caso
+ *             contr√°rio, do arquivo "pseudo_bits.h".
  *
- *             Opcionalmente, poder· ser usada uma implementaÁ„o
+ *             Opcionalmente, poder√° ser usada uma implementa√ß√£o
  *             independente de fila de prioridade (heap) da tarefa
- *             08. Neste caso, dever· ser submetido tambÈm o arquivo
- *             "heap.c". Caso contr·rio, dever· ser eliminada ou
+ *             08. Neste caso, dever√° ser submetido tamb√©m o arquivo
+ *             "heap.c". Caso contr√°rio, dever√° ser eliminada ou
  *             comentada a linha abaixo que inclui "heap.h".
  */
 
+/* N√∫mero m√°ximo de caracteres distintos */
+#define MAX_CHARS 256
+
+/* Determina o uso de pseudo-bits na compress√£o e decompress√£o. Isto √©, usa-se
+ * os caracteres '0' e '1' para representar os bits reais. Para usar bits reais,
+ * comente a linha abaixo.
+ */
+#define PSEUDO_BITS
 
 #include "heap.h"
-
-/* Deixe descomentada uma das duas linhas */
-/*#include "bits.h"*/
-#include "pseudo_bits.h"
-
 
 #include <string.h>
 #include <stdio.h>
@@ -29,229 +32,307 @@
 #include "balloc.h"
 #include "imprimearvore.h"
 
-/* --------------------------------------------------------- */
-/*         Tipos                                             */
-/* --------------------------------------------------------- */
 
-
-typedef struct RegArvHuf *ArvHuf;
+/******************************************************************************
+ *                            Declara√ß√µes de Tipos                            *
+ ******************************************************************************/
 
 typedef enum TipoFilho {
-  FilhoEsq = 0, FilhoDir = 1, Indeterminado } TipoFilho;
+	Esquerdo = 0,
+	Direito  = 1,
+	Indeterminado
+} TipoFilho;
 
-typedef struct RegArvHuf {
-  int peso;                      /* peso da ·rvore */
-  char letra;                    /* somente no caso de folha */
-  TipoFilho tipoFilho;           /* indica a relaÁ„o com o pai */
-  ArvHuf esq,dir,pai;            /* sub·rvores e pai */
-} RegArvHuf;
+typedef struct RegArvHuff *ArvHuff;
+typedef struct RegArvHuff {
+	int peso;
 
+	/* Somente para folhas */
+	char letra;
 
-
-/* --------------------------------------------------------- */
-/*         Vari·veis globais                                 */
-/* --------------------------------------------------------- */
-
-
-ArvHuf Arvore;   /*  As funÁıes abaixo construir„o e utilizar„o a
-		     ·rvore que ser· apontada por esta vari·vel */
+	TipoFilho tipoFilho;
+	ArvHuff pai, esq, dir;
+} RegArvHuff;
 
 
-ArvHuf Folhas[256];   /* Apontadores para as folhas da ·rvore 'Arvore' */
+/******************************************************************************
+ *                             Vari√°veis Globais                              *
+ ******************************************************************************/
+
+/* √Årvore usada ao longo da execu√ß√£o do programa. */
+ArvHuff huff;
+
+/* Ponteiros para todas as folhas da √°rvore 'huff' */
+ArvHuff folhasHuff[MAX_CHARS];
 
 
+/******************************************************************************
+ *                             Fun√ß√µes Auxiliares                             *
+ ******************************************************************************/
 
-/* --------------------------------------------------------- */
-/* FunÁıes auxiliares para este mÛdulo                       */
-/* --------------------------------------------------------- */
+/* Compara duas √°rvores de huffman, 'a' e 'b', e retorna < 0 caso 'a' deva estar
+ * acima de 'b', > 0 caso 'b' deva estar acima de 'a' e 0 caso ambas tenham o
+ * mesmo peso.
+ */
+int ComparaHuffman(void *a, void *b) {
+	ArvHuff hA = (ArvHuff) a;
+	ArvHuff hB = (ArvHuff) b;
 
-ArvHuf CriaFolha(char letra, int peso) {
-/* Cria uma folha da ·rvore; devolve NULL se n„o h· mais memÛria. */
+	return hB->peso - hA->peso;
+}
 
-  ArvHuf p = MALLOC(sizeof(RegArvHuf));
-  if (p!=NULL) {
-    p->esq = p->dir = NULL;
-    p->letra = letra;
-    p->peso = peso;
-    p->tipoFilho = Indeterminado;
-  }
-  return p;
+/* Cria uma folha da √°rvore; caso n√£o haja mais mem√≥ria ou o peso da folha seja
+ * 0, retorna NULL.
+ */
+ArvHuff CriaFolha(int peso, char letra) {
+	if (peso == 0) {
+		return NULL;
+	}
 
-} /* CriaFolha */
+	ArvHuff f = MALLOC(sizeof(RegArvHuff));
 
-ArvHuf CombinaArvs(ArvHuf esq, ArvHuf dir) {
-/* Combina duas sub·rvores numa ˙nica ·rvore cujo peso È a soma dos
-   pesos das sub·rvores; devolve NULL se n„o h· mais memÛria. */
+	if (f != NULL) {
+		f->peso      = peso;
+		f->letra     = letra;
+		f->tipoFilho = Indeterminado;
 
-  ArvHuf p=MALLOC(sizeof(RegArvHuf));
-  if (p!=NULL) {
-    p->esq = esq;
-    p->dir = dir;
-    p->peso = esq->peso+dir->peso;
-    esq->pai = dir->pai = p;
-    esq->tipoFilho = FilhoEsq;
-    dir->tipoFilho = FilhoDir;
-  }
-  return p;
+		f->esq = f->dir = f->pai = NULL;
+	}
 
-} /* CombinaArvs */
+	return f;
+}
+
+/* Cria uma nova √°rvore, usando como filhos esquerdo e direito as √°rvores
+ * passadas, respectivamente, em 'esq' e 'dir'; caso n√£o haja mais mem√≥ria,
+ * retorna NULL.
+ */
+ArvHuff CombinaArvores(ArvHuff dir, ArvHuff esq) {
+	ArvHuff p = MALLOC(sizeof(RegArvHuff));
+
+	if (p != NULL) {
+		p->peso = esq->peso + dir->peso;
+
+		p->esq = esq;
+		p->dir = dir;
+		p->pai = NULL;
+
+		esq->tipoFilho = Esquerdo;
+		dir->tipoFilho = Direito;
+
+		esq->pai = dir->pai = p;
+	}
+
+	return p;
+}
+
+/* Libera toda a mem√≥ria ocupada pela √°rvore 'p'. */
+void LiberaHuffmanAux(ArvHuff p) {
+	if (p != NULL) {
+		LiberaHuffmanAux(p->esq);
+		LiberaHuffmanAux(p->dir);
+
+		FREE(p);
+	}
+}
 
 
-void LiberaArvoreAux(ArvHuf p){
-/* Libera a memÛria din‚mica ocupada pela ·rvore 'p'. */
+/* Retorna o i-√©simo bit na sequ√™ncia de bits 'bits'. Serve de abstra√ß√£o para o
+ * tipo de representa√ß√£o escolhido no topo no arquivo.
+ */
+short int IBit(char *bits, int n) {
+	#ifdef PSEUDO_BITS
+		return bits[n] - '0';
+	#endif
+}
 
-  if (p!=NULL) {
-    LiberaArvoreAux(p->esq);
-    LiberaArvoreAux(p->dir);
-    FREE(p);
-  }
+/* Acrescenta √† sequ√™ncia de bits 'bits' o bit indicado por 'bit'. Serve de
+ * abstra√ß√£o para o tipo de representa√ß√£o escolhido no topo no arquivo.
+ */
+void AcrescentaBit(char *bits, int n, short int bit) {
+	#ifdef PSEUDO_BITS
+		bits[n] = bit ? '1' : '0';
+	#endif
+}
 
-} /* LiberaArvoreAux */
+/* Acrescenta √† sequ√™ncia de caracteres 'texto' o caractere indicado por 'c'. */
+void AcrescentaChar(char *texto, int n, char c) {
+	texto[n] = c;
+}
 
-Boolean AcrescentaChar(char *s, int *n, char c, int maxCars) {
-/* Acresenta ‡ seq¸Íncia de caracteres 's' o caractere 'c' e
-   incrementa '*n'. Devolve 'false' se o n˙mero de caracteres
-   ultrapassou 'maxCars'.  */
+/* Acrescenta √† sequ√™ncia de bits 'bits' os bits que representam o caractere que
+ * √© passado como no, na primeira chamada da fun√ß√£o.
+ */
+Boolean AcrescentaCharBits(ArvHuff no, char *bits, int *numBits, int numBitsMax) {
+	/* Se estamos na raiz, retornamos false caso tenhamos excedido o n√∫mero
+	 * m√°ximo de bits a serem codificados.
+	 */
+	if (no->pai == NULL) {
+		return *numBits <= numBitsMax;
+	}
 
-  if ((*n)==maxCars)
-    return false;
-  s[*n] = c;
-  (*n)++;
-  return true;
+	/* Sobe na √°rvore at√© a raiz */
+	if (!AcrescentaCharBits(no->pai, bits, numBits, numBitsMax)) {
+		return false;
+	}
 
-} /* AcrescentaChar */
+	/* Escreve o bit que representa essa passagem na √°rvore */
+	AcrescentaBit(bits, *numBits, no->tipoFilho == Direito);
+	(*numBits)++;
 
+	return true;
+}
 
+/* Acrescenta √† sequ√™ncia de caracteres 'texto' o caractere representado pela
+ * sequ√™ncia de bits que come√ßa na posi√ß√£o 'numBits'.
+ */
+Boolean AcrescentaBitsChar(ArvHuff no, char *bits, int *numBits, char *texto, int *numChars, int numCharsMax) {
+	/* Se chegamos a uma folha, basta adicionar esse caractere */
+	if (no->esq == NULL) {
+		if (*numChars == numCharsMax) {
+			return false;
+		}
 
-/* FunÁıes auxiliares para implementaÁ„o com pseudo-bits */
-/* --------------------------------------------------------- */
+		AcrescentaChar(texto, (*numChars)++, no->letra);
 
-Boolean AcrescentaBit(char *bits, int *numBits, short int b, int maxBits) {
-/* Acrescenta ‡ seq¸Íncia de pseudo-bits 'bits' o bit indicado por 'b';
-   incrementa 'numbits'. Devolve 'false' se o n˙mero de bits
-   ultrapassou 'maxBits'. */
-  return AcrescentaChar(bits, numBits, (char)(b+'0'), maxBits);
-} /* AcrescentaBit */
+		return true;
+	}
 
-short int IBit(char *bits, int i) {
-  /* Retorna o i-Èsimo bit da cadeia apontada por 'bits' */
-  return bits[i] - '0';
+	/* Desce na √°rvore, lendo os bits, at√© acharmos uma folha */
+	if (IBit(bits, (*numBits)++) == 0) {
+		return AcrescentaBitsChar(no->esq, bits, numBits, texto, numChars, numCharsMax);
+	} else {
+		return AcrescentaBitsChar(no->dir, bits, numBits, texto, numChars, numCharsMax);
+	}
 }
 
 
 
-/* --------------------------------------------------------- */
-/* FunÁıes da interface                                      */
-/* --------------------------------------------------------- */
+/******************************************************************************
+ *                   Implementa√ß√£o da Compress√£o de Huffman                   *
+ ******************************************************************************/
 
-Boolean ConstroiHuffman(char txt[], int n) {
-/* A partir do texto 'texto' de 'n' caracteres, constrÛi a ·rvore de
-   Huffman para compress„o deste texto e a guarda numa vari·vel local
-   do mÛdulo 'huffman.c'.  Numa outra vari·vel local guarda um vetor
-   de apontadores para as folhas da ·rvore. Devolve 'true' se a
-   construÁ„o teve sucesso; 'false' caso contr·rio. */
+/* A partir do texto 'texto' de 'n' caracteres, constr√≥i uma √°rvore de Huffman
+ * para compress√£o deste texto, na vari√°vel global 'huff' deste m√≥dulo e amarzena
+ * na vari√°vel 'folhasHuff', tamb√©m global a este m√≥dulo, os apontadores para as
+ * folhas da √°rvore. Retorna true caso a constru√ß√£o tenha sido bem sucedida;
+ * false caso contr√°rio.
+ */
+Boolean ConstroiHuffman(char texto[], int n) {
+	int i, j;
+	int freq[MAX_CHARS];
+	ArvHuff tempFolhas[MAX_CHARS];
 
-  ArvHuf floresta[256];
-  int freq[256], i;
-  Heap heap;      /* Depende da implementaÁ„o de heap */
+	/* Zera todas as frequ√™ncias */
+	memset(freq, 0, sizeof(freq));
 
-  /* Inicializa vari·veis */
-  for (i=0; i<256; i++) {
-    freq[i] = 0;
-    Folhas[i] = NULL;
-  }
+	/* Calcula as frequ√™ncias */
+	for (i = 0; i < n; i++) {
+		freq[(unsigned char) texto[i]]++;
+	}
 
-  /* Conta a freq¸Íncia dos caracteres */
-  for (i=0; i<n; i++) {
-    freq[(unsigned char) txt[i]]++;
-  }
+	/* Cria as folhas, j√° com as frequ√™ncias */
+	j = 0;
+	for (i = 0; i < MAX_CHARS; i++) {
+		folhasHuff[i] = CriaFolha(freq[i], (char) i);
 
-/*--------------------------*/
-/*       COMPLETAR !!       */
-/*--------------------------*/
+		if (folhasHuff[i] != NULL) {
+			tempFolhas[j++] = folhasHuff[i];
+		}
+	}
 
-  return true;   /* PROVIS”RIO */
+	Heap freqHeap = CriaInicializaHeap(j, ComparaHuffman, (void **) tempFolhas);
 
-} /* ConstroiHuffman */
+	/* Constr√≥i a √Årvore de Huffman */
+	while (TamanhoHeap(freqHeap) > 1) {
+		InsereHeap(
+			freqHeap,
+			CombinaArvores(
+				(ArvHuff) RemoveHeap(freqHeap),
+				(ArvHuff) RemoveHeap(freqHeap)
+			)
+		);
+	}
 
+	/* A √°rvore comleta √© o √∫nico elemento restante no heap */
+	huff = (ArvHuff) RemoveHeap(freqHeap);
+
+	LiberaHeap(freqHeap);
+
+	return true;
+}
+
+/* Libera toda a mem√≥ria ocupada pela √°rvore 'p'. */
 void LiberaHuffman() {
-/* Libera a memÛria din‚mica ocupada pelas estruturas criadas por
-   'ConstroiHuffman'. */
-
-/*--------------------------*/
-/*       COMPLETAR !!       */
-/*--------------------------*/
-
-} /* LiberaHuffman */
+	LiberaHuffmanAux(huff);
+}
 
 
-Boolean Comprime(char *txt, int n,
-		 char *bits, int *numBits, int numBitsMax) {
-/* Comprime os 'n' caracteres do texto 'txt' usando as estruturas j·
-   construÌdas, e deixa o resultado como uma seq¸Íncia de pseudo-bits
-   (ou bits verdadeiros) na ·rea apontada por 'bits'. Devolve em
-   'numBits' o n˙mero total de bits gerado. Em caso de sucesso devolve
-   'true'; se houver mais de 'numBitsMax' bits, devolve 'false'. */
+/* Comprime os 'n' caracteres do texto 'texto', usando as estruturas previamente
+ * constru√≠das pelo m√≥dulo, armazenando o resultado, na representa√ß√£o definida no
+ * topo do arquivo, na vari√°vel 'bits'. No caso de a compress√£o ser bem sucedida,
+ * retorna true e armazena em 'numBits' o total de bits na cadeia comprimida; caso
+ * contr√°rio, retorna false.
+ */
+Boolean Comprime(char *texto, int n, char *bits, int *numBits, int numBitsMax) {
+	*numBits = 0;
 
-/*--------------------------*/
-/*       COMPLETAR !!       */
-/*--------------------------*/
+	/* Comprime um char por vez */
+	for (int i = 0; i < n; i++) {
+		if (!AcrescentaCharBits(folhasHuff[(unsigned char) texto[i]], bits, numBits, numBitsMax)) {
+			return false;
+		}
+	}
 
-  return true;   /* PROVIS”RIO */
+	return true;
+}
 
-} /* Comprime */
 
+/* Descomprime os primeiros 'numBits' bits da cadeia comprimida 'bits', usando
+ * as estruturas pr√©viamente constru√≠das pelo m√≥dulo, e armazena o resultado, na
+ * representa√ß√£o definida no topo do arquivo, na vari√°vel 'texto'. No caso de a
+ * decompress√£o ser bem sucedida, retorna true e armazena em 'numChars' o total
+ * de caracteres na cadeia descomprimida; caso contr√°rio, retorna false.
+ */
+Boolean Descomprime(char *texto, int *numChars, char *bits, int numBits, int numCharsMax) {
+	*numChars = 0;
 
-Boolean Descomprime(char *txt, int *n,
-		    char *bits, int numBits, int tamMaxTxt) {
-/* Descomprime a cadeia de pseudo-bits (ou bits verdadeiros) na ·rea
-   apontada por 'bits', de comprimento 'numBits' seguindo a ·rvore de
-   Huffman j· construÌda.  Em caso de sucesso devolve 'true'; se
-   aparecer uma codificaÁ„o incompatÌvel com a ·rvore, ou se houver
-   mais caracteres que 'tamMaxTxt' devolve 'false'.*/
+	/* Descomprime um char por vez */
+	for (int i = 0; i < numBits;) {
+		if (!AcrescentaBitsChar(huff, bits, &i, texto, numChars, numCharsMax)) {
+			return false;
+		}
+	}
 
-/*--------------------------*/
-/*       COMPLETAR !!       */
-/*--------------------------*/
+	return true;
+}
 
-  return true;   /* PROVIS”RIO */
-
-} /* Descomprime */
-
-/* --------------------------------------------------------- */
-/* FunÁıes auxiliares para os testes pelo programa principal */
-/* N„o modifique estas declaraÁıes                           */
-/* --------------------------------------------------------- */
+/******************************************************************************
+ *                 Fun√ß√µes Auxiliares para o M√≥dulo Principal                 *
+ ******************************************************************************/
 
 #define DESLOCA 5
 
-char buf[10];  /* O buffer de impress„o ser· fixo de atÈ 9 caracteres e \0 */
+char buf[10];  /* O buffer de impress√£o ser√° fixo de at√© 9 caracteres e \0 */
 
-ArvHuf esq(ArvHuf p, int nivel) { return p->esq; }
-ArvHuf dir(ArvHuf p, int nivel) { return p->dir; }
+ArvHuff esq(ArvHuff p, int nivel) { return p->esq; }
+ArvHuff dir(ArvHuff p, int nivel) { return p->dir; }
 
-char *info(ArvHuf p, int nivel) {
-  if ((p->esq==NULL)&&(p->dir==NULL))  /* folha */
-    sprintf(buf,"%4d:%c",p->peso,p->letra);
-  else  /* nÛ interno */
-    sprintf(buf,"%4d",p->peso);
-  return buf;
+char *info(ArvHuff p, int nivel) {
+	if ((p->esq==NULL)&&(p->dir==NULL))  /* folha */
+		sprintf(buf,"%4d:%c",p->peso,p->letra);
+	else  /* n√≥ interno */
+		sprintf(buf,"%4d",p->peso);
+	return buf;
 }
 
 void ImprimeHuffman() {
-/* Imprime a ·rvore de Huffman num formato legÌvel */
+	ImprimeArvore(huff,(subarvfunc*)esq,(subarvfunc*)dir,(infofunc*)info,NULL,DESLOCA,"√Årvore vazia");
+}
 
-  ImprimeArvore(Arvore,(subarvfunc*)esq,(subarvfunc*)dir,(infofunc*)info,NULL,DESLOCA,"¡rvore vazia");
-
-
-} /* ImprimeArvore */
-
-
-
-
-
-
-
-
-
-
+Boolean PseudoBits() {
+	#ifdef PSEUDO_BITS
+		return true;
+	#else
+		return false;
+	#endif
+}
