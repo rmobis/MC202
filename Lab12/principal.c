@@ -121,11 +121,11 @@ int main() {
   }
 
   printf("\nTexto comprimido:\n");
- #ifdef PSEUDO_BITS
+  if (PseudoBits()) {
     EscreveBitsSimulados(bits, numBits);
-  #else
+  } else {
     EscreveBits(bits, numBits);
-#endif    
+  }
   printf("\n");
 
   if (!Descomprime(auxTxt,&tamAuxTxt,bits,numBits,TamMaxTexto)) {

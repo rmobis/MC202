@@ -37,3 +37,6 @@ Boolean Descomprime(char *txt, int *n,
    Huffman já construída.  Em caso de sucesso devolve 'true'; se
    aparecer uma codificação incompatível com a árvore, ou se houver
    mais caracteres que 'tamMaxTxt' devolve 'false'.*/
+
+Boolean PseudoBits();
+/* Informa se foram usados pseudo-bits ou bits verdadeiros. */
