@@ -1,0 +1,217 @@
+From: <Saved by WebKit>
+Subject: Laboratorio 11
+Date: Thu, 3 Dec 2014 01:35:01 -0000
+MIME-Version: 1.0
+Content-Type: multipart/related;
+	type="text/html";
+	boundary="----=_NextPart_000_EE59_A3939CE7.F6B1CC3A"
+
+------=_NextPart_000_EE59_A3939CE7.F6B1CC3A
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+Content-Location: https://susy.ic.unicamp.br:9999/mc202ef/11/enunc.html
+
+<html data-ember-extension=3D"1"><head><meta charset=3D"UTF-8">
+
+    <title>Laboratorio 11</title>
+<style type=3D"text/css"></style></head>
+<body bgcolor=3D"#CC9966" text=3D"#000000">
+
+<h3>Instituto de Computa=C3=A7=C3=A3o da UNICAMP</h3>
+
+<h3>Disciplina MC202: Segundo Semestre de 2014</h3>
+
+<h3>Laborat=C3=B3rio N=C2=BA 11</h3>
+
+<i>Prof.</i> <i>Tomasz Kowaltowski </i>
+<p>
+</p><hr>
+<p>
+
+</p><p align=3D"JUSTIFY">
+O objetivo deste laborat=C3=B3rio =C3=A9 a implementa=C3=A7=C3=A3o e teste =
+de uma pequena
+base de dados que conter=C3=A1 registros referentes a alunos da UNICAMP.
+As informa=C3=A7=C3=B5es correspondentes a cada aluno ser=C3=A3o o RA e o n=
+ome, sendo
+que o RA constituir=C3=A1 a chave para as opera=C3=A7=C3=B5es de manipula=
+=C3=A7=C3=A3o da base
+de dados.
+
+</p><p align=3D"JUSTIFY">
+Esta base de dados ser=C3=A1 implementada atrav=C3=A9s de uma tabela de
+espalhamento com encadeamento (<i>hashing with chaining</i>).  A
+tabela ter=C3=A1 <i>MaxHash</i> entradas, numeradas de
+<i>0</i> a
+<i>MaxHash-1</i> (a constante <i>MaxHash</i> est=C3=A1 declarada no arquivo
+<tt>base.h</tt>.)  A fun=C3=A7=C3=A3o de espalhamento a ser usada deve ser =
+(j=C3=A1
+declarada no arquivo <tt>base.c</tt>):
+</p><p>
+</p><center>
+<i>f(RA)&nbsp; =3D &nbsp;RA&nbsp;%&nbsp;MaxHash</i>
+</center>
+
+<p>
+<b>Importante</b>: Dentro de cada lista, as entradas dever=C3=A3o estar em
+ordem <u>crescente</u> de RA.
+
+
+
+</p><p align=3D"JUSTIFY">
+Analogamente aos laborat=C3=B3rios anteriores, a implementa=C3=A7=C3=A3o se=
+guir=C3=A1 a
+id=C3=A9ia de um tipo abstrato de dados realizado atrav=C3=A9s de um par de
+arquivos &nbsp;<tt>base.h</tt> &nbsp;e &nbsp;<tt>base.c</tt>, &nbsp;e
+testado por um programa &nbsp;<tt>principal.c</tt>.  &nbsp;Os arquivos
+&nbsp;<tt>base.h</tt> &nbsp;e &nbsp;<tt>principal.c</tt> &nbsp;s=C3=A3o
+fornecidos na =C3=ADntegra; o arquivo incompleto &nbsp;<tt>base.c</tt> &nbs=
+p;=C3=A9 um
+esbo=C3=A7o e deve ser completado.  Os coment=C3=A1rios esclarecem a finali=
+dade
+de cada fun=C3=A7=C3=A3o. <b>Sugest=C3=A3o:</b> Inclua no arquivo
+&nbsp;<tt>base.c</tt> &nbsp;fun=C3=A7=C3=B5es auxiliares, particularmente a=
+s que
+manipulam as listas ligadas.
+
+</p><p align=3D"JUSTIFY"> Diferentemente das tarefas anteriores, o programa
+de teste <tt>principal.c</tt> recebe dois par=C3=A2metros que s=C3=A3o os n=
+omes
+dos arquivos de entrada.  O primeiro arquivo (<tt>.in1</tt>) cont=C3=A9m os
+dados iniciais a serem inseridos na base, uma linha para cada aluno,
+com um espa=C3=A7o em branco separando o RA do nome.  O segundo arquivo
+(<tt>.in2</tt>) cont=C3=A9m as opera=C3=A7=C3=B5es a serem executadas.  A s=
+a=C3=ADda do
+programa de teste continua sendo para o arquivo padr=C3=A3o de sa=C3=ADda.
+Desta maneira, a execu=C3=A7=C3=A3o do programa de teste pode ser invocada =
+por
+comandos da forma:
+
+</p><p>
+</p><pre>                 ./principal  arq.in1  arq.in2
+</pre>
+ou <br>
+<pre>                 ./principal  arq.in1  arq.in2 &gt; arq.res
+</pre>
+
+<p align=3D"JUSTIFY"> onde &nbsp;<tt>principal</tt> &nbsp;=C3=A9 o arquivo
+execut=C3=A1vel gerado pela compila=C3=A7=C3=A3o e &nbsp;<tt>arq.res</tt> &=
+nbsp;=C3=A9 o
+arquivo que conter=C3=A1 os resultados, conforme indicado pela redire=C3=A7=
+=C3=A3o de
+sa=C3=ADda.
+
+
+</p><p align=3D"JUSTIFY">As opera=C3=A7=C3=B5es (a=C3=A7=C3=B5es) interpret=
+adas pelo programa de
+teste s=C3=A3o:
+
+</p><blockquote>
+
+<table>
+<tbody><tr>
+<td width=3D"5%"><b>i</b></td><td width=3D"5%"><i>ra</i></td><td width=3D"1=
+0%"><i>nome</i></td>
+<td width=3D"80%">insere o aluno correspondente na base de dados</td>
+</tr>
+<tr>
+<td width=3D"5%"><b>r</b></td><td width=3D"5%"><i>ra</i></td><td width=3D"1=
+0%"><i>&nbsp;</i></td>
+<td width=3D"80%">remove o aluno correspondente da base de dados</td>
+</tr>
+<tr>
+<td width=3D"5%"><b>c</b></td><td width=3D"5%"><i>ra</i></td><td width=3D"1=
+0%"><i>&nbsp;</i></td>
+<td width=3D"80%">consulta a base de dados</td>
+</tr>
+<tr>
+<td width=3D"5%"><b>w</b></td><td width=3D"5%"><i>&nbsp;</i></td><td width=
+=3D"10%"><i>&nbsp;</i></td>
+<td width=3D"80%">imprime a base de dados</td>
+</tr>
+</tbody></table>
+
+</blockquote>
+
+
+
+<p align=3D"JUSTIFY">Note que o programa principal cria uma base
+inicialmente vazia (chamando a fun=C3=A7=C3=A3o <i>CriaBase</i>) e a coloca=
+ na
+vari=C3=A1vel <i>p</i>. A p=C3=A1gina deste laborat=C3=B3rio apresenta algu=
+ns
+conjuntos de arquivos de testes e os seus respectivos resultados.
+
+</p><p><b><u>Observa=C3=A7=C3=B5es</u></b>
+</p><ol>
+
+<li> <p align=3D"justify"> Um  <b>RA</b> sempre ser=C3=A1 <b>representado p=
+or
+um n=C3=BAmero inteiro</b> e <b>n=C3=A3o</b> =C3=A9 precedido das letras <t=
+t>RA</tt>.
+=20
+</p></li><li> <p align=3D"JUSTIFY">A representa=C3=A7=C3=A3o da base como u=
+ma tabela de
+espalhamento est=C3=A1 escondida do usu=C3=A1rio que deve enxerg=C3=A1-la a=
+penas como
+um <i>tipo abstrato de dados</i>. Note no arquivo <tt>base.h</tt> que
+isso =C3=A9 feito em <i>C</i> definindo o tipo <tt>Base</tt> como um
+apontador do tipo <tt>void</tt>.  A declara=C3=A7=C3=A3o do tipo da tabela
+(<i>ImplBase</i>) ficar=C3=A1 escondida no arquivo <tt>base.c</tt> onde as
+convers=C3=B5es de tipo apropriadas (<i>casting</i>) dever=C3=A3o ser efetu=
+adas.
+
+</p></li><li><p align=3D"JUSTIFY">Note que a implementa=C3=A7=C3=A3o da tab=
+ela inclui o
+campo <i>numregs</i> que indica o n=C3=BAmero de registros contidos na
+tabela.
+
+</p></li><li><p align=3D"JUSTIFY"><b>N=C3=A3o =C3=A9 permitida</b> nenhuma =
+modifica=C3=A7=C3=A3o das
+declara=C3=A7=C3=B5es de tipos ou fun=C3=A7=C3=B5es j=C3=A1 completas do ar=
+quivo
+<tt>base.c</tt>.
+
+</p></li><li> <p align=3D"JUSTIFY"> A  administra=C3=A7=C3=A3o de mem=C3=B3=
+ria deve utilizar, em
+lugar   das  fun=C3=A7=C3=B5es  <tt>malloc</tt>   e  <tt>free</tt>,   as  m=
+acros
+<tt>MALLOC</tt>  e   <tt>FREE</tt>  definidas  no   pacote  modificado
+<tt>balloc</tt>.    As  chamadas  das   macros  s=C3=A3o   an=C3=A1logas  =
+=C3=A0s
+respectivas  fun=C3=A7=C3=B5es.  Com isto,  ao  final  da  execu=C3=A7=C3=
+=A3o do  programa
+principal, ser=C3=A1 verificado se foi liberada toda a mem=C3=B3ria din=C3=
+=A2mica.
+
+</p></li><li><p align=3D"justify">Veja  no programa  principal  como  =C3=
+=A9 feita  a
+passagem  de par=C3=A2metros  na linha  de comando  na  linguagem <i>C</i>.
+
+</p></li><li><p align=3D"JUSTIFY">Os arquivos de entrada ser=C3=A3o lidos a=
+t=C3=A9 que seja
+detectada a condi=C3=A7=C3=A3o de fim de arquivo (<tt>EOF</tt>).
+
+</p></li><li><p align=3D"JUSTIFY">Deve   ser   submetido   apenas   o   arq=
+uivo
+<tt>base.c</tt>  que implementa  as fun=C3=A7=C3=B5es  especificadas  no ar=
+quivo
+<tt>base.h</tt>,   al=C3=A9m  de  fun=C3=A7=C3=B5es   e  tipos   auxiliares=
+.  =20
+
+</p></li><li><p align=3D"JUSTIFY">O n=C3=BAmero m=C3=A1ximo de submiss=C3=
+=B5es =C3=A9 10.=20
+
+</p></li>
+</ol>
+<p>
+</p><hr>
+<small><i>Last update: "enunc.html: 2014-11-15 (Sat)  14:57:25 BRST (tk)"</=
+i></small>
+
+
+<div style=3D"position: absolute; z-index: -1; top: 0px; left: 0px; right: =
+0px; height: 1184px;"></div></body><object id=3D"b9eaca5a-8b28-a594-7969-5b=
+bbc9a2bf82" width=3D"0" height=3D"0" type=3D"application/gas-events-cef"></=
+object></html>
+------=_NextPart_000_EE59_A3939CE7.F6B1CC3A--
