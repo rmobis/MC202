@@ -1,19 +1,15 @@
-/*
- * huffman.c - Implementação do algoritmo de Huffman.
+/**
+ * Programa: huffman.c
+ * Autor: Raphael Mobis Tacla   RA: 157104
+ * Disciplina: MC202            Turma: F
+ * Data: 10/12/2014
+ *
+ * Módulo de implementação do algoritmo de Huffman usando, opcionalmente, pseudo
+ * bits.
  */
 
-/*
- * huffman.c - Implementação do algoritmo de Huffman.
- *             Para fazer a implementação com bits verdadeiros,
- *             deixe abaixo a inclusão do arquivo "bits.h"; caso
- *             contrário, do arquivo "pseudo_bits.h".
- *
- *             Opcionalmente, poderá ser usada uma implementação
- *             independente de fila de prioridade (heap) da tarefa
- *             08. Neste caso, deverá ser submetido também o arquivo
- *             "heap.c". Caso contrário, deverá ser eliminada ou
- *             comentada a linha abaixo que inclui "heap.h".
- */
+/* Número de bits em um caracteres */
+#define CHAR_BITS (sizeof(char) * 8)
 
 /* Número máximo de caracteres distintos */
 #define MAX_CHARS 256
@@ -22,7 +18,7 @@
  * os caracteres '0' e '1' para representar os bits reais. Para usar bits reais,
  * comente a linha abaixo.
  */
-#define PSEUDO_BITS
+//#define PSEUDO_BITS
 
 #include "heap.h"
 
@@ -142,21 +138,33 @@ void LiberaHuffmanAux(ArvHuff p) {
 short int IBit(char *bits, int n) {
 	#ifdef PSEUDO_BITS
 		return bits[n] - '0';
+	#else
+		return bits[n / CHAR_BITS] & (128 >> (n % 8));
 	#endif
 }
 
 /* Acrescenta à sequência de bits 'bits' o bit indicado por 'bit'. Serve de
  * abstração para o tipo de representação escolhido no topo no arquivo.
  */
-void AcrescentaBit(char *bits, int n, short int bit) {
+void AcrescentaBit(char *bits, int *n, short int bit) {
 	#ifdef PSEUDO_BITS
-		bits[n] = bit ? '1' : '0';
+		bits[*n] = bit ? '1' : '0';
+	#else
+		if (bit == 0) {
+			bits[*n / CHAR_BITS] &= ~(128 >> (*n % 8));
+		} else {
+			bits[*n / CHAR_BITS] |= (128 >> (*n % 8));
+		}
 	#endif
+
+	(*n)++;
 }
 
 /* Acrescenta à sequência de caracteres 'texto' o caractere indicado por 'c'. */
-void AcrescentaChar(char *texto, int n, char c) {
-	texto[n] = c;
+void AcrescentaChar(char *texto, int *n, char c) {
+	texto[*n] = c;
+
+	(*n)++;
 }
 
 /* Acrescenta à sequência de bits 'bits' os bits que representam o caractere que
@@ -176,8 +184,7 @@ Boolean AcrescentaCharBits(ArvHuff no, char *bits, int *numBits, int numBitsMax)
 	}
 
 	/* Escreve o bit que representa essa passagem na árvore */
-	AcrescentaBit(bits, *numBits, no->tipoFilho == Direito);
-	(*numBits)++;
+	AcrescentaBit(bits, numBits, no->tipoFilho == Direito);
 
 	return true;
 }
@@ -192,7 +199,7 @@ Boolean AcrescentaBitsChar(ArvHuff no, char *bits, int *numBits, char *texto, in
 			return false;
 		}
 
-		AcrescentaChar(texto, (*numChars)++, no->letra);
+		AcrescentaChar(texto, numChars, no->letra);
 
 		return true;
 	}
